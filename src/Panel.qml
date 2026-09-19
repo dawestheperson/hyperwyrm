@@ -135,6 +135,7 @@ Panel {
             delegate: Gem {
               required property string modelData
               px: 2
+              kind: modelData
               tint: (Badges.find(modelData) || { color: "#ffd84d" }).color
               MouseArea {
                 anchors.fill: parent

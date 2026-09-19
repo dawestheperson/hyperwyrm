@@ -980,6 +980,7 @@ PanelWindow {
     Gem {
       anchors.centerIn: parent
       px: 4
+      kind: win.gift ? win.gift.id : "pebble"
       tint: win.gift ? (Badges.find(win.gift.id) || { color: "#ffd84d" }).color : "#ffd84d"
     }
     MouseArea {

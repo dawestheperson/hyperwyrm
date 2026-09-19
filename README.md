@@ -93,6 +93,10 @@ Requires Omarchy with the plugin-capable shell (Quickshell) and Hyprland.
 
 **Badges.** Eight gift gems, three bond milestones (25, 50, 100), Firebreather, Emperor Form and Tag Champion.
 
+<p align="center"><img src="docs/art/badges.png" alt="The fourteen badges" width="480"></p>
+
+Hover a badge in the panel to see how it was earned.
+
 ## How the brain works
 
 Its movement is not scripted. A small **CfC** (closed-form continuous-time) network wired with an **NCP** (Neural Circuit Policy, inspired by the *C. elegans* nervous system) turns its state into motion every tenth of a second.
