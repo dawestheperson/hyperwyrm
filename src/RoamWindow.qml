@@ -344,7 +344,6 @@ PanelWindow {
       trickDy = -Math.abs(Math.sin(trickT * 6.5)) * 12
       action = "walk"; frameT += dt
       if (frameT >= 0.11) { frameT = 0; frame = (frame + 1) % 8 }
-      return
     } else if (trick === "zoom") {
       var mid = posX + spriteW * 0.5
       posX += dir * speed * 2.6 * dt
@@ -940,6 +939,7 @@ PanelWindow {
           if (Math.abs(p.x - grabX - win.posX) < 6 && Math.abs(p.y - grabY - win.posY) < 6) return
           dragging = true
           win.pet.cancelRest()
+          win.trick = ""; win.trickRot = 0; win.trickDx = 0; win.trickDy = 0      // picking it up ends any trick
           win.action = "held"
           win.support = null
         }
