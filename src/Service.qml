@@ -683,7 +683,7 @@ Item {
   IpcHandler {
     target: "hyperwyrm"
     function demo(cmd: string, arg: string): string {
-      if (!root.hatched) return "hatch first"
+      if (!root.hatched && cmd !== "clearbadges") return "hatch first"
       var n = Number(arg)
       switch (cmd) {
       case "xp": root.grow(Math.max(0, n - root.xp)); break
