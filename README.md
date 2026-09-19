@@ -41,7 +41,7 @@
 - **Bond.** Every kind thing you do builds bond, which slows how fast it gets unhappy.
 - **A sulking mode.** Neglect it and a storm cloud follows it around, its colours fade, it refuses a first snack, huffs steam and stomps off to the edge of the screen.
 - **Mess to clean up.** It poops after eating. Leave it for 30 seconds and it stresses out.
-- **Happy tricks.** A cheerful dragon glows with sparkles and hearts for a minute or two after something nice happens, dances, spins, does zoomies and loop-the-loops, and leaves gifts on the floor.
+- **Happy tricks.** A cheerful dragon glows with sparkles and hearts for 90 seconds when it gets happy (and again every 30 minutes it stays that way), dances, spins, does zoomies and loop-the-loops, and leaves gifts on the floor.
 - **Badges.** Fourteen collectable gems, shown at the top right of its home menu.
 - **Tag.** An optional 20-second mini-game where the neural network runs from your cursor.
 - **Seven colours.** Red, blue, green, gold, purple, silver and black.
