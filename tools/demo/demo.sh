@@ -8,4 +8,6 @@
 #   tools/demo/demo.sh fire           max everything and breathe fire (Emperor Dragon)
 #   tools/demo/demo.sh poop           digest a snack now
 #   tools/demo/demo.sh out            let the dragon out of the bar
+#   tools/demo/demo.sh setxp 290      set XP without an evolve cutscene
+#   tools/demo/demo.sh status         print evolving / stage / badges as JSON
 exec qs -p "${OMARCHY_SHELL_PATH:-/usr/share/omarchy/shell}" ipc call hyperwyrm demo "$1" "${2:-0}"

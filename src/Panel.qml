@@ -121,7 +121,7 @@ Panel {
       // ---- header: portrait + name + speech ----
       Item {
         width: parent.width
-        height: headerRow.height
+        height: headerRow.height + (badgeFlow.visible ? badgeFlow.height + 18 : 0)
       Row {
         id: headerRow
         spacing: Style.space(12)
@@ -155,11 +155,11 @@ Panel {
       Flow {
         id: badgeFlow
         visible: root.pet.badges.length > 0
-        anchors.top: parent.top
-        anchors.right: parent.right
-        width: Math.min(parent.width - headerRow.width - 8, 6 * 22)
-        spacing: 4
-        layoutDirection: Qt.RightToLeft
+        anchors.top: headerRow.bottom
+        anchors.topMargin: 8
+        anchors.left: parent.left
+        width: parent.width
+        spacing: 3
         Repeater {
           model: root.pet.badges
           delegate: Gem {
@@ -177,8 +177,9 @@ Panel {
       }
       Text {
         visible: root.badgeHint !== ""
-        anchors.right: parent.right
+        anchors.left: parent.left
         anchors.top: badgeFlow.bottom
+        anchors.topMargin: 2
         text: root.badgeHint
         color: Qt.darker(root.bar.foreground, 1.3)
         font.family: root.bar.fontFamily

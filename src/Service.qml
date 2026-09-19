@@ -698,6 +698,8 @@ Item {
         root.badges = Badges.LIST.map(function(b) { return b.id }).filter(function(id) { return skip.indexOf(id) < 0 })
         root.markDirty(true); break
       case "poop": root.poopDue(); break
+      case "setxp": root.xp = Math.max(0, n); break      // no cutscene: go straight to that form
+      case "status": return JSON.stringify({ evolving: root.evolving, stage: root.stage, badges: root.badges })
       case "out": root.setRoam(true, root.focusedMonitorName()); break
       default: return "unknown: " + cmd
       }
