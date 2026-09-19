@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "dracula.hyperwyrm",
+  "name": "Hyperwyrm",
+  "version": "0.2.0",
+  "author": "dracula",
+  "description": "A pixel-art eastern dragon pet driven by a tiny CfC neural network. It lives in your bar, roams your windows, grows through three forms and sulks when neglected.",
+  "kinds": [
+    "service",
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "service": "src/Service.qml",
+    "barWidget": "src/Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Hyperwyrm",
+    "description": "Your dragon. Click for its home; the bar icon changes as it grows.",
+    "category": "Fun",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
