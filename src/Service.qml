@@ -698,6 +698,7 @@ Item {
         root.badges = Badges.LIST.map(function(b) { return b.id }).filter(function(id) { return skip.indexOf(id) < 0 })
         root.markDirty(true); break
       case "poop": root.poopDue(); break
+      case "out": root.setRoam(true, root.focusedMonitorName()); break
       default: return "unknown: " + cmd
       }
       return "ok"

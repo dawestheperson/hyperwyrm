@@ -7,4 +7,5 @@
 #   tools/demo/demo.sh max            fullness, happiness and energy to 100
 #   tools/demo/demo.sh fire           max everything and breathe fire (Emperor Dragon)
 #   tools/demo/demo.sh poop           digest a snack now
+#   tools/demo/demo.sh out            let the dragon out of the bar
 exec qs -p "${OMARCHY_SHELL_PATH:-/usr/share/omarchy/shell}" ipc call hyperwyrm demo "$1" "${2:-0}"
