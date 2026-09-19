@@ -369,6 +369,18 @@ PanelWindow {
     if (gate > 0.3 || now > nextTrickAt + 60000) startTrick()
   }
 
+  // The happy glow (sparkles and hearts) is a treat: it starts when something makes the
+  // dragon happy (a snack, a pat, play, a gift, or its mood climbing past 80%) and fades after 90 s.
+  property bool glowing: false
+  property real prevJoy: pet.joy
+  Timer { id: glowTimer; interval: 90000; onTriggered: win.glowing = false }
+  function glow() { if (pet.joy >= 80) { glowing = true; glowTimer.restart() } }
+  Connections {
+    target: win.pet
+    function onRewarded() { win.glow() }
+    function onJoyChanged() { if (win.pet.joy >= 80 && win.prevJoy < 80) win.glow(); win.prevJoy = win.pet.joy }
+  }
+
   // --- gifts -----------------------------------------------------------------
   property var gift: null
   Connections {
@@ -965,7 +977,7 @@ PanelWindow {
     px: win.scale
     width: win.spriteW; height: win.spriteH
     hearts: win.pet.joy >= 90
-    visible: win.pet.roamEnabled && !win.pet.evolving && !win.pet.unhappy && win.pet.joy >= 80
+    visible: win.glowing && win.pet.roamEnabled && !win.pet.evolving && !win.pet.unhappy && win.pet.joy >= 80
       && (win.pet.mood === "happy" || win.pet.mood === "playful") && win.action !== "curl"
     x: sprite.x; y: sprite.y - win.spriteH * 0.2
   }
