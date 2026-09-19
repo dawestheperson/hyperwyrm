@@ -135,7 +135,7 @@ Your dragon is saved to `~/.local/state/omarchy/hyperwyrm.json`.
 
 ## Development
 
-Plugin code under `~/.config/omarchy/plugins/` hot-reloads on save for simple edits; run `omarchy restart shell` to be sure after larger changes. To work on a clone, symlink or copy it to `~/.config/omarchy/plugins/dracula.hyperwyrm`.
+Plugin code under `~/.config/omarchy/plugins/` hot-reloads on save for simple edits; run `omarchy restart shell` to be sure after larger changes. To work on a clone, symlink or copy it to `~/.config/omarchy/plugins/dawestheperson.hyperwyrm`.
 
 ```bash
 omarchy plugin validate .                     # check the manifest

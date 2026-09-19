@@ -9,8 +9,8 @@ import "Badges.js" as Badges
 
 Panel {
   id: root
-  moduleName: "dracula.hyperwyrm"
-  ipcTarget: "dracula.hyperwyrm"
+  moduleName: "dawestheperson.hyperwyrm"
+  ipcTarget: "dawestheperson.hyperwyrm"
 
   readonly property var pet: bar && bar.shell ? bar.shell.serviceFor(moduleName) : null
   property string badgeHint: ""
