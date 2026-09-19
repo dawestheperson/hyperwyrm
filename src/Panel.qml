@@ -119,9 +119,70 @@ Panel {
       spacing: Style.space(10)
 
       // ---- header: portrait + name + speech ----
+      // ---- badges: one fixed-height strip at the very top, filling right to left ----
       Item {
+        id: badgeStrip
         width: parent.width
-        height: headerRow.height + (badgeFlow.visible ? badgeFlow.height + 18 : 0)
+        height: 16
+        visible: !root.pet.isEgg
+        z: 20
+        Row {
+          anchors.right: parent.right
+          layoutDirection: Qt.RightToLeft
+          spacing: 3
+          Repeater {
+            model: root.pet.badges
+            delegate: Gem {
+              required property string modelData
+              px: 2
+              tint: (Badges.find(modelData) || { color: "#ffd84d" }).color
+              MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                onEntered: root.badgeHint = parent.modelData
+                onExited: root.badgeHint = ""
+              }
+            }
+          }
+        }
+        // Hover card: floats over the content, so it never changes the panel's size.
+        Rectangle {
+          readonly property var info: Badges.find(root.badgeHint)
+          visible: info !== null && root.badgeHint !== ""
+          z: 30
+          anchors.right: parent.right
+          y: parent.height + 4
+          width: 230
+          height: tipCol.implicitHeight + 16
+          radius: 6
+          color: Color.popups.background
+          border.color: Color.popups.border
+          Column {
+            id: tipCol
+            x: 8; y: 8
+            width: parent.width - 16
+            spacing: 3
+            Text {
+              width: parent.width
+              text: parent.parent.info ? parent.parent.info.name : ""
+              color: root.bar.foreground
+              font.family: root.bar.fontFamily
+              font.pixelSize: Style.font.body
+              font.bold: true
+            }
+            Text {
+              width: parent.width
+              text: parent.parent.info ? parent.parent.info.how : ""
+              wrapMode: Text.WordWrap
+              color: Qt.darker(root.bar.foreground, 1.25)
+              font.family: root.bar.fontFamily
+              font.pixelSize: Style.font.bodySmall
+            }
+          }
+        }
+      }
+
+      // ---- header: portrait + name ----
       Row {
         id: headerRow
         spacing: Style.space(12)
@@ -151,46 +212,16 @@ Panel {
           }
         }
       }
-      // Collected badges, top right. Hover one for its name.
-      Flow {
-        id: badgeFlow
-        visible: root.pet.badges.length > 0
-        anchors.top: headerRow.bottom
-        anchors.topMargin: 8
-        anchors.left: parent.left
-        width: parent.width
-        spacing: 3
-        Repeater {
-          model: root.pet.badges
-          delegate: Gem {
-            required property string modelData
-            px: 2
-            tint: (Badges.find(modelData) || { color: "#ffd84d" }).color
-            MouseArea {
-              anchors.fill: parent
-              hoverEnabled: true
-              onEntered: root.badgeHint = (Badges.find(parent.modelData) || { name: "" }).name
-              onExited: root.badgeHint = ""
-            }
-          }
-        }
-      }
-      Text {
-        visible: root.badgeHint !== ""
-        anchors.left: parent.left
-        anchors.top: badgeFlow.bottom
-        anchors.topMargin: 2
-        text: root.badgeHint
-        color: Qt.darker(root.bar.foreground, 1.3)
-        font.family: root.bar.fontFamily
-        font.pixelSize: Style.font.body - 1
-      }
-      }
+      // The speech line has a fixed two-line height so the panel never resizes while it talks.
       Text {
         width: parent.width
-        visible: text.trim() !== ""
+        height: Math.ceil(Style.font.body * 1.4) * 2
+        visible: !root.pet.isEgg
         text: root.pet.speech !== "" ? "\u201c" + root.pet.speech + "\u201d" : ""
         wrapMode: Text.WordWrap
+        maximumLineCount: 2
+        elide: Text.ElideRight
+        verticalAlignment: Text.AlignTop
         color: root.bar.foreground
         font.family: root.bar.fontFamily
         font.pixelSize: Style.font.body
