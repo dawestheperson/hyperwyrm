@@ -232,22 +232,18 @@ Panel {
       // What it has learned about you: a fixed two-line block, so the panel never resizes.
       Text {
         width: parent.width
-        height: Math.ceil(Style.font.bodySmall * 1.4) * 2
+        height: Math.ceil(Style.font.bodySmall * 1.4) * 3
         visible: !root.pet.isEgg
-        wrapMode: Text.WordWrap
-        maximumLineCount: 2
+        wrapMode: Text.NoWrap
+        maximumLineCount: 3
         elide: Text.ElideRight
         color: Qt.darker(root.bar.foreground, 1.3)
         font.family: root.bar.fontFamily
         font.pixelSize: Style.font.bodySmall
-        text: {
-          var a = [], b = []
-          a.push("Favourite snack: " + (root.pet.favSnack !== "" ? Foods.INFO[root.pet.favSnack].label : "still learning"))
-          a.push("trick: " + (root.pet.favTrickName !== "" ? root.pet.favTrickName : "still learning"))
-          b.push("Hangs out on " + (root.pet.favSpotName !== "" ? root.pet.favSpotName : "...still learning"))
-          if (root.pet.usualTime !== "") b.push("visits around " + root.pet.usualTime)
-          return a.join("  \u00b7  ") + "\n" + b.join("  \u00b7  ")
-        }
+        text: "Favourite snack: " + (root.pet.favSnack !== "" ? Foods.INFO[root.pet.favSnack].label : "still learning")
+          + "\nFavourite trick: " + (root.pet.favTrickName !== "" ? root.pet.favTrickName : "still learning")
+          + "\nHangs out on " + (root.pet.favSpotName !== "" ? root.pet.favSpotName : "...still learning")
+          + (root.pet.usualTime !== "" ? "  \u00b7  visits ~" + root.pet.usualTime : "")
       }
 
       PanelSeparator { foreground: root.bar.foreground }
