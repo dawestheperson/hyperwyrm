@@ -133,7 +133,6 @@ src/              the plugin (QML and JS)
 docs/             screenshots, art sheets and the demo video
 tools/brain/      train and export the network
 tools/docs/       regenerate the art sheets in docs/art
-tools/demo/       shell shortcuts for recording demos (XP, badges, gifts, mood)
 ```
 
 Your dragon is saved to `~/.local/state/omarchy/hyperwyrm.json`.

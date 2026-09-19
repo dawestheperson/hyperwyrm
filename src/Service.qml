@@ -679,37 +679,6 @@ Item {
     visible: root.initialized && root.hatched && !root.namingPending && (root.roamEnabled || root.poops.length > 0)
   }
 
-  // `qs ipc call hyperwyrm demo <command> [arg]`: shortcuts for demos and testing.
-  IpcHandler {
-    target: "hyperwyrm"
-    function demo(cmd: string, arg: string): string {
-      if (!root.hatched && cmd !== "clearbadges") return "hatch first"
-      var n = Number(arg)
-      switch (cmd) {
-      case "xp": root.grow(Math.max(0, n - root.xp)); break
-      case "joy": root.joy = root.clamp(n); root.updateUnhappy(); break
-      case "full": root.fullness = root.clamp(n); break
-      case "energy": root.energy = root.clamp(n); break
-      case "max": root.fullness = 100; root.joy = 100; root.energy = 100; root.updateUnhappy(); break
-      case "fire": root.fullness = 100; root.joy = 100; root.energy = 100; root.updateUnhappy(); root.tryFire(); break
-      case "gift": root.giftDue(); root.say("I found something for you!"); break
-      case "badges":      // all badges except the ones named in arg (comma separated)
-        var skip = String(arg).split(",")
-        root.badges = Badges.LIST.map(function(b) { return b.id }).filter(function(id) { return skip.indexOf(id) < 0 })
-        root.markDirty(true); break
-      case "poop": root.poopDue(); break
-      case "bond": root.bond = root.clamp(n); root.markDirty(true); break
-      case "grumble": root.say(Phrases.pick(Phrases.MOOD.unhappy)); break
-      case "clearbadges": root.badges = []; root.bond = 0; root.markDirty(true); break
-      case "setxp": root.xp = Math.max(0, n); break      // no cutscene: go straight to that form
-      case "status": return JSON.stringify({ evolving: root.evolving, stage: root.stage, badges: root.badges })
-      case "out": root.setRoam(true, root.focusedMonitorName()); break
-      default: return "unknown: " + cmd
-      }
-      return "ok"
-    }
-  }
-
   HatchScene {
     pet: root
     visible: root.initialized && (root.hatching || root.namingPending)
