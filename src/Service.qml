@@ -5,6 +5,7 @@ import Quickshell.Hyprland
 import "Phrases.js" as Phrases
 import "Foods.js" as Foods
 import "Badges.js" as Badges
+import "Learner.js" as Learner
 
 // Headless dragon brain. Runs once for the whole shell session.
 //
@@ -36,6 +37,7 @@ Item {
   property real favSpotFx: -1           // favourite curl-up spot, fraction of screen width
   property var poops: []                // [{id, fx}] mess left on the floor
   property int poopSeq: 0
+  property var prefs: Learner.fresh()   // what it has learned about you (see Learner.js)
   property var badges: []               // collected badge ids
   // Tag mini-game: "" | "offer" | "run"
   property string gameState: ""
@@ -290,13 +292,37 @@ Item {
   function takeFood() { var q = foodQueue; foodQueue = []; return q }
   readonly property bool canEat: fullness < 95
 
+  // Learning: remember where and when you pet it; its favourite spot follows your habits.
+  function learnTouch(fx) {
+    var p = Learner.clone(prefs)
+    Learner.touch(p, fx, new Date().getHours() + new Date().getMinutes() / 60)
+    prefs = p
+    var s = Learner.favSpotFx(p)
+    if (s >= 0) favSpotFx = s
+    markDirty(false)
+  }
+  function learnTrick(trick, liked) {
+    var p = Learner.clone(prefs)
+    if (liked) Learner.trickLiked(p, trick); else Learner.trickIgnored(p, trick)
+    prefs = p
+    markDirty(false)
+  }
+  readonly property string favSnack: Learner.favFood(prefs) || ""
+  readonly property string favTrickName: Learner.favTrick(prefs) || ""
+  readonly property string favSpotName: Learner.spotLabel(prefs)
+  readonly property string usualTime: Learner.hourLabel(Learner.usualHour(prefs))
+
   function eat(kind) {
     var f = Foods.INFO[kind]
     if (!f) return
+    var wasFav = kind === favSnack
+    var p = Learner.clone(prefs); Learner.ate(p, kind); prefs = p
+    if (wasFav) joy = clamp(joy + 3)
     fullness = clamp(fullness + f.fill)
     joy = clamp(joy + f.joy)
     if (unhappy && snackRefused && !sneakSaid) { sneakSaid = true; say(Phrases.pick(Phrases.SNEAK)) }
     else say(Phrases.pick(Phrases.FED))
+    if (wasFav && !unhappy) say(Phrases.pick(["My favourite! You remembered.", "Yes! " + f.label + "! Best snack.", "You know me so well."]))
     reward("feed", 3 + f.joy * 0.2)
     grow(f.fill * 1.0)          // 1 XP per point of fullness: care is the main way to grow
     pendingPoops = pendingPoops.concat([Date.now() + 60000 + Math.random() * 120000])   // what goes in must come out
@@ -433,7 +459,7 @@ Item {
   }
 
   function newEgg() {
-    gameState = ""; gameTick.stop()
+    gameState = ""; gameTick.stop(); prefs = Learner.fresh(); favSpotFx = -1
     hatched = false; xp = 0; fullness = 60; joy = 70; energy = 80; bond = 0
     unhappy = false; playing = false; restPhase = ""; foodQueue = []; poops = []; pendingPoops = []; stressNoted = ({})
     hatching = false; namingPending = false
@@ -607,7 +633,7 @@ Item {
     stateFile.setText(JSON.stringify({
       version: 3, colorName: colorName, petName: petName,
       hatched: hatched, xp: xp, fullness: fullness, joy: joy, energy: energy,
-      bond: bond, namingPending: namingPending, favSpotFx: favSpotFx, poops: poops, poopSeq: poopSeq,
+      bond: bond, prefs: prefs, namingPending: namingPending, favSpotFx: favSpotFx, poops: poops, poopSeq: poopSeq,
       badges: badges, roamEnabled: roamEnabled, savedAtMs: savedAtMs
     }))
     dirty = false
@@ -627,6 +653,7 @@ Item {
       energy = clamp(num(d.energy, 80))
       bond = clamp(num(d.bond, 0))
       favSpotFx = num(d.favSpotFx, -1)
+      prefs = Learner.sanitize(d.prefs)
       if (Array.isArray(d.badges)) badges = d.badges.filter(function(b) { return Badges.find(b) }).filter(function(b, i, a) { return a.indexOf(b) === i })
       if (d.namingPending === true && hatched) { namingPending = true; hatching = true; hatchScreenName = focusedMonitorName() }
       poopSeq = Math.max(0, Math.floor(num(d.poopSeq, 0)))

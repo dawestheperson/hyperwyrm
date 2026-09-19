@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- New learning layer: the dragon learns which tricks you react to, your favourite snack, where you pet it and when you visit. The panel shows what it has learned.
+
 ## 0.2.1
 
 - Fixed: the dance trick never ended, so a very happy dragon froze in place, and stayed frozen (floating, if picked up mid-dance).

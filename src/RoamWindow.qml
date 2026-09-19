@@ -8,6 +8,7 @@ import "Brain.js" as Brain
 import "Sprites.js" as Sprites
 import "Badges.js" as Badges
 import "Phrases.js" as Phrases
+import "Learner.js" as Learner
 
 // The dragon's playground: a transparent full-screen overlay above your
 // windows. Input is limited to the dragon and the mess on the floor (mask), so
@@ -304,6 +305,25 @@ PanelWindow {
   property real trickDy: 0
   property real trickRot: 0
   property double nextTrickAt: Date.now() + 25000
+  // A trick counts as liked if you pet or reward the dragon within 10 s of it; otherwise it slowly loses favour.
+  property string lastTrick: ""
+  property double lastTrickEnd: 0
+  property bool trickLikedYet: false
+  function judgeTrick() {
+    if (lastTrick !== "" && !trickLikedYet) pet.learnTrick(lastTrick, false)
+    lastTrick = ""
+  }
+  Connections {
+    target: win.pet
+    function onRewarded(kind, amount) {
+      if (win.lastTrick === "" || win.trickLikedYet || kind === "clean") return
+      var end = win.lastTrickEnd > 0 ? win.lastTrickEnd : Date.now()
+      if (Date.now() - end > 10000) return
+      win.trickLikedYet = true
+      win.pet.learnTrick(win.lastTrick, true)
+      if (Math.random() < 0.4) win.pet.say(Phrases.pick(["You liked that one! I'll do it more.", "Ooh, a fan! More " + win.lastTrick + "s coming.", "Noted: you like the " + win.lastTrick + "."]))
+    }
+  }
   function startTrick() {
     var mood = pet.mood
     var pool
@@ -311,7 +331,10 @@ PanelWindow {
     else if (mood === "hungry") pool = ["rumble"]
     else if (mood === "playful") pool = flying ? ["zoom", "spin", "loop", "dance"] : ["zoom", "spin", "dance"]
     else pool = flying ? ["dance", "spin", "loop"] : ["dance", "spin"]
-    trick = pool[Math.floor(Math.random() * pool.length)]
+    // Tricks you have reacted to before are picked more often (the learning layer).
+    judgeTrick()
+    trick = Learner.TRICKS.indexOf(pool[0]) >= 0 ? Learner.pickTrick(pet.prefs, pool) : pool[0]
+    lastTrick = trick; lastTrickEnd = 0; trickLikedYet = false
     trickT = 0
     trickDur = { spin: 0.9, loop: 1.5, dance: 2.2, zoom: 3.0, yawn: 2.2, rumble: 1.3 }[trick]
     velX = 0; velY = 0; targetX = 0; targetY = 0
@@ -321,6 +344,7 @@ PanelWindow {
     else if (trick === "zoom") pet.say(Phrases.pick(["Zoomies!!", "Can't stop, won't stop!", "Wheee!"]))
   }
   function endTrick() {
+    lastTrickEnd = Date.now()
     trick = ""; trickRot = 0; trickDx = 0; trickDy = 0
     nextTrickAt = Date.now() + 25000 + Math.random() * 30000
     action = "sit"; frame = 0; lastBrainMs = 0
@@ -498,6 +522,8 @@ PanelWindow {
     var o = Brain.step(brain, x, dt)
     var gm = pet.gameState === "run" ? 1.5 : (pet.mood === "sleepy" ? 0.6 : 1)
     var tvx = o[0] * speed * gm, tvy = flying ? o[1] * speed * gm : 0
+    // Learned favourite spot (where you pet it): a gentle pull back towards it, stronger the closer you are.
+    if (pet.gameState !== "run") tvx += Learner.spotBias(pet.prefs, posX / Math.max(1, width - spriteW)) * speed * 0.3 * (0.4 + pet.bond / 100)
     brainRest = o[2]; brainJump = o[3]
     if (brainRest > 0.3) { tvx = 0; tvy = 0 }
     targetX = tvx; targetY = tvy
@@ -976,7 +1002,7 @@ PanelWindow {
         } else if (e.button === Qt.LeftButton) {
           if (win.pet.gameState === "offer") win.pet.startGame()
           else if (win.pet.gameState === "run") { win.pet.gameHit(); win.scoot() }
-          else { win.pet.chat(); if (win.pet.unhappy) win.scoot() }
+          else { win.pet.chat(); if (win.pet.unhappy) win.scoot(); else win.pet.learnTouch((win.posX + win.spriteW / 2) / Math.max(1, win.width)) }
         }
       }
     }

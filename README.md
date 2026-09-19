@@ -44,6 +44,7 @@
 - **Happy tricks.** A cheerful dragon glows with sparkles and hearts for 90 seconds when it gets happy (and again every 30 minutes it stays that way), dances, spins, does zoomies and loop-the-loops, and leaves gifts on the floor.
 - **Badges.** Fourteen collectable gems, shown at the top right of its home menu.
 - **Tag.** An optional 20-second mini-game where the neural network runs from your cursor.
+- **It learns you.** It notices which tricks you react to and does those more, which snack you feed it most, where on the screen you pet it (and drifts and naps there), and roughly when you visit. The panel shows what it has learned so far.
 - **Seven colours.** Red, blue, green, gold, purple, silver and black.
 
 ## The forms
@@ -138,6 +139,19 @@ Its movement is not scripted. A small **CfC** (closed-form continuous-time) netw
 | Runtime | a pure-JavaScript forward pass inside QML; no Python, no GPU, no daemon |
 
 The network is trained offline by distilling a hand-written teacher policy (see [`tools/brain`](tools/brain)). Its own outputs decide *when* the dragon stops to rest and when it feels like a trick. In the tag game the same network runs away from your cursor.
+
+### The learning layer
+
+On top of the CfC brain sits a small online learner ([`src/Learner.js`](src/Learner.js)) that adapts to what you reward. It does not retrain the network: the CfC still decides how the dragon moves, and the learner biases what it chooses and where it drifts.
+
+| It learns | From | Effect |
+| --- | --- | --- |
+| Favourite trick | Petting it within 10 s of a trick counts as a "like" (a bandit update) | Liked tricks are picked more often; ignored ones fade |
+| Favourite snack | What you feed it | Your favourite gives a happiness bonus and a special line |
+| Favourite spot | Where on the screen you pet it | It drifts back there, and its resting spot moves there |
+| Usual time | The hour of day you interact | Shown in the panel |
+
+It is a few dozen numbers, saved with the pet and reset with a new egg. Old habits fade, so it follows changes in yours.
 
 ### Cost
 
