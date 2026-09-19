@@ -151,7 +151,7 @@ Panel {
           visible: info !== null && root.badgeHint !== ""
           z: 30
           anchors.right: parent.right
-          y: parent.height + 4
+          y: 108                     // below the portrait, so it never covers the dragon
           width: 230
           height: tipCol.implicitHeight + 16
           radius: 6
