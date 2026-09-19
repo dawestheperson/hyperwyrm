@@ -73,7 +73,7 @@ var PLAY_START = ["Ooh, a cursor! Must chase!", "That little arrow is MINE!", "C
 var PLAY_DURING = ["Gotcha... almost!", "Ha! Missed!", "Come back, little arrow!", "So fast!", "Pounce!", "Wheee!", "Where'd it go?", "I'll catch you!"]
 var PLAYED = ["That was so fun!", "Again again!", "I caught it! ...I think.", "Best game ever!", "Phew! I need a snack now.", "Zoom zoom!"]
 
-// The Grand Dragon, when it is happy, says so and then breathes fire.
+// The Emperor Dragon, when it is happy, says so and then breathes fire.
 var FIRE_PRELUDE = ["I'm so happy I could breathe fire!", "I'm happy! Watch this!", "Feeling great... time for fire!", "Happy dragon! Stand back!", "This calls for a little fire!", "I'm so happy! *inhales*"]
 var FIRE_AFTER = ["Ta-da!", "Whoosh!", "Hot stuff!", "*proud snort*", "Too much? Sorry!"]
 

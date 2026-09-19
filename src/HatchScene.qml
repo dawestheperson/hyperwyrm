@@ -12,7 +12,7 @@ import "Sprites.js" as Sprites
 //   5-10 s     it jostles faintly from the inside
 //   5-8 s      cracks appear in three stages, the egg holds still
 //   then       a shudder, a white flash, the silhouette, confetti, and the
-//              hatchling comes up in colour, wiggling
+//              wyrmling comes up in colour, wiggling
 //   then       a box asks for a name; confirming shrinks everything back to
 //              normal size and the dragon starts roaming from the spot
 //
@@ -214,7 +214,7 @@ PanelWindow {
       }
     }
 
-    // ---- the hatchling ----
+    // ---- the wyrmling ----
     Item {
       id: hatchBox
       anchors.centerIn: parent

@@ -50,9 +50,9 @@ Item {
   readonly property bool maxStage: stage >= 2
   readonly property real stageProgress: maxStage ? 1
     : (xp - stageXp[stage]) / (stageXp[stage + 1] - stageXp[stage])
-  readonly property var stageNames: ["Hatchling", "Dragon", "Grand Dragon"]
+  readonly property var stageNames: ["Wyrmling", "Wyrm", "Emperor Dragon"]
   readonly property string stageLabel: isEgg ? "Egg" : stageNames[stage]
-  // Dragon and Grand Dragon fly; the Hatchling walks on windows and the floor.
+  // Wyrm and Emperor Dragon fly; the Wyrmling walks on windows and the floor.
   readonly property bool flies: hatched && stage >= 1
   readonly property bool sleeping: hatched && energy < 10
   readonly property bool resting: restPhase !== ""
@@ -204,7 +204,7 @@ Item {
     hatching = true
   }
   function cancelHatch() { if (!hatched) hatching = false }
-  // The egg bursts: from here on it is a (still unnamed) hatchling.
+  // The egg bursts: from here on it is a (still unnamed) wyrmling.
   function hatchBurst() {
     if (hatched) return
     hatched = true
@@ -314,7 +314,7 @@ Item {
     else line = Phrases.contextual(category, "happy", hour)
     say(line)
   }
-  // Grand Dragon only: when everything is full, a happy line, then a jet of fire.
+  // Emperor Dragon only: when everything is full, a happy line, then a jet of fire.
   function tryFire() {
     if (stage < 2 || !roamEnabled || unhappy || evolving || hatching || playing || asleepNow || restPhase !== "") return
     // Only a dragon that is fully fed, fully rested and fully happy (95%+ each).
@@ -538,7 +538,7 @@ Item {
     }
   }
   Timer { id: fireAfter; interval: 3300; onTriggered: root.say(Phrases.pick(Phrases.FIRE_AFTER)) }
-  // Every few minutes a happy Grand Dragon breathes fire.
+  // Every few minutes a happy Emperor Dragon breathes fire.
   Timer {
     interval: 60000          // the first one comes a minute after it starts flying
     repeat: true
@@ -677,6 +677,31 @@ Item {
   RoamWindow {
     pet: root
     visible: root.initialized && root.hatched && !root.namingPending && (root.roamEnabled || root.poops.length > 0)
+  }
+
+  // `qs ipc call hyperwyrm demo <command> [arg]`: shortcuts for demos and testing.
+  IpcHandler {
+    target: "hyperwyrm"
+    function demo(cmd: string, arg: string): string {
+      if (!root.hatched) return "hatch first"
+      var n = Number(arg)
+      switch (cmd) {
+      case "xp": root.grow(Math.max(0, n - root.xp)); break
+      case "joy": root.joy = root.clamp(n); root.updateUnhappy(); break
+      case "full": root.fullness = root.clamp(n); break
+      case "energy": root.energy = root.clamp(n); break
+      case "max": root.fullness = 100; root.joy = 100; root.energy = 100; root.updateUnhappy(); break
+      case "fire": root.fullness = 100; root.joy = 100; root.energy = 100; root.updateUnhappy(); root.tryFire(); break
+      case "gift": root.giftDue(); root.say("I found something for you!"); break
+      case "badges":      // all badges except the ones named in arg (comma separated)
+        var skip = String(arg).split(",")
+        root.badges = Badges.LIST.map(function(b) { return b.id }).filter(function(id) { return skip.indexOf(id) < 0 })
+        root.markDirty(true); break
+      case "poop": root.poopDue(); break
+      default: return "unknown: " + cmd
+      }
+      return "ok"
+    }
   }
 
   HatchScene {

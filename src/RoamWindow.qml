@@ -21,7 +21,7 @@ import "Phrases.js" as Phrases
 //                  and leaves messes that stay until you click them
 //   5. Its brain   otherwise a CfC/NCP network (Brain.js) steers it
 //
-// The Hatchling walks on the floor and window tops; Dragon and Grand Dragon
+// The Wyrmling walks on the floor and window tops; Wyrm and Emperor Dragon
 // fly. Physics is time-based; the timer ticks at about 30 fps only while
 // something is moving, 10 fps otherwise and 1 fps while curled up.
 //
@@ -176,7 +176,7 @@ PanelWindow {
   property double scootUntil: 0
   property real sulkT: 0
   property bool glanced: false
-  // fire breathing (Grand Dragon)
+  // fire breathing (Emperor Dragon)
   property real fireT: 0
 
   readonly property string anim: action === "curl" ? "curl" : action === "fire" ? "fire"
@@ -184,7 +184,7 @@ PanelWindow {
 
   function startFall() { support = null; vy = 0; action = "fall" }
 
-  // Grand Dragon: hover, lift the head, open wide and breathe a jet of flame.
+  // Emperor Dragon: hover, lift the head, open wide and breathe a jet of flame.
   function startFire() {
     if (pet.stage < 2 || !pet.roamEnabled || pet.evolving || pet.playing || pet.restPhase !== "") return
     if (action !== "sit" && action !== "walk" && action !== "fly") return
@@ -687,7 +687,7 @@ PanelWindow {
     return true
   }
 
-  // Grumpy little puffs from the nostril: steam, or (Grand Dragon) a tiny fire puff.
+  // Grumpy little puffs from the nostril: steam, or (Emperor Dragon) a tiny fire puff.
   function emitPuff() {
     var n = Sprites.NOSE[Math.max(0, Math.min(2, pet.stage))]
     var x = sprite.x + (dir > 0 ? n.x : 32 - n.x) * scale

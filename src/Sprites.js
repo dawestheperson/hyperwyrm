@@ -1,14 +1,14 @@
 .pragma library
 
 // 32x32 pixel-art dragon, facing right. All frames are pre-rendered (walk 8,
-// idle 4, sleep 2, curl 2 per stage, fire 4 for the Grand Dragon; two egg wobble frames), so drawing one costs a
+// idle 4, sleep 2, curl 2 per stage, fire 4 for the Emperor Dragon; two egg wobble frames), so drawing one costs a
 // handful of rect fills and nothing is computed while it runs.
 //
 //   o outline   m body   d shade   h highlight   l pale (baby feet)
 //   b belly     a accent (horns, mane, plates)   w wing   t claw/tooth
 //   e eye white   k pupil / black   f flame   y flame core
 var N = 32
-// Where the flame leaves the Grand Dragon's mouth on the fire frames (sprite pixels).
+// Where the flame leaves the Emperor Dragon's mouth on the fire frames (sprite pixels).
 var FIRE_MOUTH = { x: 30.60, y: 15.00 }
 
 var FRAMES = {

@@ -14,7 +14,7 @@ var LIST = [
   { id: "bond50",  name: "Best Friend (bond 50)",  color: "#ff5f8a" },
   { id: "bond100", name: "Soulbound (bond 100)",   color: "#ff3d6e" },
   { id: "fire",    name: "Firebreather",  color: "#ff9020" },
-  { id: "grand",   name: "Grand Form",    color: "#e6c14d" },
+  { id: "grand",   name: "Emperor Form",    color: "#e6c14d" },
   { id: "tag",     name: "Tag Champion",  color: "#4fc3f7" }
 ]
 
