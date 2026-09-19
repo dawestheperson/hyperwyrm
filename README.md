@@ -79,6 +79,23 @@ Then add the **Hyperwyrm** widget to your bar if it was not placed automatically
 
 Requires Omarchy with the plugin-capable shell (Quickshell) and Hyprland.
 
+## Remove
+
+```bash
+omarchy plugin remove dawestheperson.hyperwyrm
+omarchy restart shell
+```
+
+Your dragon's save (`~/.local/state/omarchy/hyperwyrm.json`) is left behind so you can reinstall later without losing it. Delete it if you want a clean slate.
+
+## Permissions and dependencies
+
+- **No dependencies.** The plugin is QML and JavaScript, run by the Omarchy shell. Python is only needed if you retrain the brain (`tools/brain`).
+- **Screen overlay.** A transparent full-screen layer above your windows. It only accepts mouse clicks on the dragon, its snacks, its mess and its gifts.
+- **What it reads.** The class of the focused window (to comment on what you are doing), window positions (so it can stand on window tops), and the cursor position via `hyprctl cursorpos`, only during Play and Tag.
+- **What it writes.** Its own save file, and one desktop notification when the dragon becomes unhappy. It never changes your Omarchy or Hyprland configuration.
+- **License.** [MIT](LICENSE). The neural network weights and pixel art in this repository are part of that license.
+
 ## Caring for your dragon
 
 **Food.** Open the home menu and drag a snack out onto the screen. It falls, the dragon walks over and eats it. Snacks it cannot eat yet stay put until you click them away.
