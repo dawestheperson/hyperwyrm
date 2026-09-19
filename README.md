@@ -59,7 +59,7 @@ Growth comes from feeding and playing. Passive growth is capped just below the n
 Hyperwyrm is an Omarchy shell plugin (service and bar widget).
 
 ```bash
-omarchy plugin add <git-url-of-this-repo> --enable
+omarchy plugin add https://github.com/dawestheperson/hyperwyrm --enable
 omarchy restart shell
 ```
 
