@@ -50,9 +50,9 @@ Item {
   readonly property bool maxStage: stage >= 2
   readonly property real stageProgress: maxStage ? 1
     : (xp - stageXp[stage]) / (stageXp[stage + 1] - stageXp[stage])
-  readonly property var stageNames: ["Wyrmling", "Wyrm", "Emperor Dragon"]
+  readonly property var stageNames: ["Wyrmling", "Wyvern", "Emperor Dragon"]
   readonly property string stageLabel: isEgg ? "Egg" : stageNames[stage]
-  // Wyrm and Emperor Dragon fly; the Wyrmling walks on windows and the floor.
+  // Wyvern and Emperor Dragon fly; the Wyrmling walks on windows and the floor.
   readonly property bool flies: hatched && stage >= 1
   readonly property bool sleeping: hatched && energy < 10
   readonly property bool resting: restPhase !== ""

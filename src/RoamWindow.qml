@@ -21,7 +21,7 @@ import "Phrases.js" as Phrases
 //                  and leaves messes that stay until you click them
 //   5. Its brain   otherwise a CfC/NCP network (Brain.js) steers it
 //
-// The Wyrmling walks on the floor and window tops; Wyrm and Emperor Dragon
+// The Wyrmling walks on the floor and window tops; Wyvern and Emperor Dragon
 // fly. Physics is time-based; the timer ticks at about 30 fps only while
 // something is moving, 10 fps otherwise and 1 fps while curled up.
 //

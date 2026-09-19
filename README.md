@@ -18,7 +18,7 @@
 ## Features
 
 - **Lives on your screen.** Out of the bar it walks along window tops, jumps, falls and (once grown) flies over your applications. Only the dragon and its mess catch mouse clicks; everything else passes straight through.
-- **Three forms.** Feed and play with it and it grows from Wyrmling to Wyrm to Emperor Dragon, with a light-burst-and-confetti cutscene at each step. The bar icon changes with it.
+- **Three forms.** Feed and play with it and it grows from Wyrmling to Wyvern to Emperor Dragon, with a light-burst-and-confetti cutscene at each step. The bar icon changes with it.
 - **Real needs.** Fullness, happiness and energy drain over time. It gets hungry, sleepy and playful, and tells you so.
 - **Talks about what you are doing.** Its speech reacts to the window you have focused (terminal, browser, editor and so on) and to its own mood.
 - **Bond.** Every kind thing you do builds bond, which slows how fast it gets unhappy.
@@ -32,14 +32,14 @@
 ## The forms
 
 <p align="center">
-  <img src="docs/art/evolution.png" alt="Egg, Wyrmling, Wyrm and Emperor Dragon" width="640">
+  <img src="docs/art/evolution.png" alt="Egg, Wyrmling, Wyvern and Emperor Dragon" width="640">
 </p>
 
 | Form | XP | What it is |
 | --- | --- | --- |
 | **Egg** | 0 | Pick a colour and hatch it: a big egg wobbles, cracks and bursts open, then you name the wyrmling. |
 | **Wyrmling** | 0 | A small, snake-like serpent that slithers along the ground and window tops. |
-| **Wyrm** | 100 | Grows horns and a beard, and takes to the air. |
+| **Wyvern** | 100 | Grows horns and a beard, and takes to the air. |
 | **Emperor Dragon** | 300 | A branched antler crown, a golden belly band and a crest. Breathes fire when it is completely fed, rested and happy. |
 
 Growth comes from feeding and playing. Passive growth is capped just below the next threshold, so evolving is always something you did.
