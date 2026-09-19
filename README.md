@@ -10,10 +10,21 @@
 </p>
 
 <p align="center">
-  <a href="docs/media/demo.mp4">Watch the full demo</a>
+  <a href="https://github.com/dawestheperson/hyperwyrm/releases/latest">Download the full demo video</a>
 </p>
 
 ---
+
+## See it in action
+
+| Evolving | Collecting a badge, then breathing fire |
+| :---: | :---: |
+| <img src="docs/media/evolve.gif" alt="Wyvern evolving into an Emperor Dragon" width="400"> | <img src="docs/media/fire.gif" alt="Opening the panel to the badge row, then the dragon breathes fire" width="400"> |
+
+<p align="center">
+  <img src="docs/media/sulking.gif" alt="A sulking dragon under a storm cloud" width="400"><br>
+  <sub>Neglect it and it sulks: storm cloud, faded colours and mean-but-cute remarks.</sub>
+</p>
 
 ## Features
 
