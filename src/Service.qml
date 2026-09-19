@@ -209,6 +209,7 @@ Item {
     if (hatched) return
     hatched = true
     namingPending = true
+    joy = 40                                    // a fresh hatchling starts just above the unhappy line (35)
     markDirty(true)
   }
   // Named: the cutscene hands the dragon to the roaming overlay.
