@@ -66,11 +66,6 @@ Growth comes from feeding and playing. Passive growth is capped just below the n
   <sub>Seven colours</sub>
 </p>
 
-<p align="center">
-  <img src="docs/art/fire.png" alt="Emperor Dragon fire-breathing frames" width="480"><br>
-  <sub>Emperor Dragon fire animation</sub>
-</p>
-
 ## Install
 
 Hyperwyrm is an Omarchy shell plugin (service and bar widget).

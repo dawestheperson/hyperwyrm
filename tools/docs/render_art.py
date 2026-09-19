@@ -52,7 +52,6 @@ def main():
     fr, pal = data["frames"], data["pal"]
     sheet([(fr["egg"]["idle"][0], pal["red"])] + [(fr[str(s)]["idle"][0], pal["red"]) for s in (0, 1, 2)], 8).save(OUT / "evolution.png")
     sheet([(fr["2"]["idle"][0], pal[c]) for c in pal], 6).save(OUT / "colors.png")
-    sheet([(fr["2"]["fire"][i], pal["red"]) for i in range(4)], 6).save(OUT / "fire.png")
     sheet([(data["food"][k], data["foodPal"]) for k in data["kinds"] + ["poop"]], 8).save(OUT / "foods.png")
     badge_pal = lambda t: {"o": dark(t, .55), "h": light(t, .6), "l": t, "m": dark(t, .75), "L": "#4fb85a", "y": "#ffe27a", "w": "#ffffff", "k": "#4a3626", "r": "#e8484f"}
     sheet([(data["badgeArt"][b["id"]], badge_pal(b["color"])) for b in data["badges"]], 8, cols=7).save(OUT / "badges.png")
