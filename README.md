@@ -35,13 +35,13 @@
 ## Features
 
 - **Lives on your screen.** Out of the bar it walks along window tops, jumps, falls and (once grown) flies over your applications. Only the dragon and its mess catch mouse clicks; everything else passes straight through.
-- **Three forms.** Feed and play with it and it grows from Wyrmling to Wyvern to Emperor Dragon, with a light-burst-and-confetti cutscene at each step. The bar icon changes with it.
+- **Four forms.** Feed and play with it and it grows from Wyrmling to Wyvern to Emperor Dragon to a huge Celestial Dragon, with a light-burst-and-confetti cutscene at each step. The bar icon changes with it.
 - **Real needs.** Fullness, happiness and energy drain over time. It gets hungry, sleepy and playful, and tells you so.
 - **Talks about what you are doing.** Its speech reacts to the window you have focused (terminal, browser, editor and so on) and to its own mood.
 - **Bond.** Every kind thing you do builds bond, which slows how fast it gets unhappy.
 - **A sulking mode.** Neglect it and a storm cloud follows it around, its colours fade, it refuses a first snack, huffs steam and stomps off to the edge of the screen.
 - **Mess to clean up.** It poops after eating. Leave it for 30 seconds and it stresses out.
-- **Happy tricks.** A cheerful dragon glows with sparkles and hearts for 90 seconds when it gets happy (and again every 30 minutes it stays that way), spins, does zoomies and loop-the-loops, blows smoke rings, and leaves gifts on the floor. Eat until full and on the last bite it swells up like a balloon, then sighs out a big cloud of smoke.
+- **Happy tricks.** A cheerful dragon glows with sparkles and hearts for 90 seconds when it gets happy (and again every 30 minutes it stays that way), spins, does zoomies and loop-the-loops, blows smoke rings, and leaves gifts on the floor. Eat until full and on the last bite it swells up like a balloon, floats upside down, then sighs out a big cloud of smoke (all but the Celestial Dragon).
 - **Badges.** Fourteen collectable gems, shown at the top right of its home menu.
 - **Tag.** An optional 20-second mini-game where the neural network runs from your cursor.
 - **It learns you.** It notices which tricks you react to and does those more, which snack you feed it most, where on the screen you pet it (and drifts and naps there), and roughly when you visit. The panel shows what it has learned so far.
@@ -59,6 +59,7 @@
 | **Wyrmling** | 0 | A small, snake-like serpent that slithers along the ground and window tops. |
 | **Wyvern** | 100 | Grows horns and a beard, and takes to the air. |
 | **Emperor Dragon** | 300 | A branched antler crown, a golden belly band and a crest. Breathes fire when it is completely fed, rested and happy. |
+| **Celestial Dragon** | 600 | A very long, winding eastern dragon: a chain of scaled segments that slithers after its head, loops in circles and curls up in rings to rest. It has antlers, whiskers, four clawed legs and a tall plume tail. |
 
 Growth comes from feeding and playing. Passive growth is capped just below the next threshold, so evolving is always something you did.
 

@@ -33,16 +33,16 @@ PanelWindow {
 
   required property var pet
 
-  readonly property int scale: 3
-  readonly property int cells: Sprites.size(pet.stage)          // 32, or 64 for the Celestial Dragon
+  readonly property int scale: pet.stage >= 3 ? 4 : 3          // the Celestial Dragon is drawn bigger
+  readonly property int cells: Sprites.size(pet.stage)
   readonly property int spriteW: cells * scale
   readonly property int spriteH: cells * scale
   // Distance from the sprite's top edge to the soles of its feet (walking) or
   // to the ground (curled up).
-  readonly property int footOffset: [30, 31, 32, 61][pet.stage] * scale
-  readonly property int curlOffset: [31, 31, 31, 58][pet.stage] * scale
+  readonly property int footOffset: [30, 31, 32, 31][pet.stage] * scale
+  readonly property int curlOffset: 31 * scale
   readonly property bool flying: pet.flies
-  readonly property real speed: [70, 95, 130, 160][pet.stage] * (scale / 3)
+  readonly property real speed: [70, 95, 130, 150][pet.stage] * (scale / 3)
   readonly property int foodPx: 3
   readonly property int foodSize: 14 * foodPx
 
@@ -307,6 +307,7 @@ PanelWindow {
   property real trickRot: 0
   property double nextTrickAt: Date.now() + 25000
   // A trick counts as liked if you pet or reward the dragon within 10 s of it; otherwise it slowly loses favour.
+  property real circA: 0
   property string lastTrick: ""
   property double lastTrickEnd: 0
   property bool trickLikedYet: false
@@ -333,13 +334,14 @@ PanelWindow {
     else if (mood === "hungry") pool = ["rumble"]
     else if (mood === "playful") pool = flying ? ["zoom", "spin", "loop", "smokering"] : ["zoom", "spin", "smokering"]
     else pool = flying ? ["spin", "loop", "smokering"] : ["spin", "smokering"]
+    if (pet.stage >= 3 && mood !== "sleepy" && mood !== "hungry") pool = ["circles", "zoom", "smokering"]      // the long dragon loops and coils, it does not spin
     // Tricks you have reacted to before are picked more often (the learning layer).
     judgeTrick()
     lastCtx = pet.learnCtx((posX + spriteW / 2) / Math.max(1, width))
     trick = Learner.TRICKS.indexOf(pool[0]) >= 0 ? Learner.pickTrick(pet.prefs, pool, lastCtx) : pool[0]
     lastTrick = trick; lastTrickEnd = 0; trickLikedYet = false
     trickT = 0
-    trickDur = { spin: 0.9, loop: 1.5, zoom: 3.0, yawn: 2.2, rumble: 1.3, smokering: 2.0 }[trick]
+    trickDur = { spin: 0.9, loop: 1.5, zoom: 3.0, yawn: 2.2, rumble: 1.3, smokering: 2.0, circles: 5.5 }[trick]
     velX = 0; velY = 0; targetX = 0; targetY = 0
     if (trick === "yawn") pet.say(Phrases.pick(["*yaaaawn*", "*big yawn* ...sorry.", "So sleepy... *yawn*"]))
     else if (trick === "rumble") pet.say(Phrases.pick(["*grrrumble*", "That was my tummy. Not a monster.", "Feed me? Please?"]))
@@ -374,6 +376,15 @@ PanelWindow {
       posX = Math.max(minX, Math.min(maxX, posX)); posY = Math.max(minY, Math.min(maxY, posY))
       action = flying ? "fly" : "walk"; frameT += dt
       if (frameT >= 0.06) { frameT = 0; frame = (frame + 1) % 8 }
+    } else if (trick === "circles") {
+      // it swims round in circles, so the long body winds itself into loops and coils
+      if (trickT < 0.05) circA = dir > 0 ? 0 : Math.PI
+      circA += dt * 2.1 * (dir > 0 ? 1 : -1) * (t < 0.85 ? 1 : 0)
+      posX += Math.cos(circA) * speed * 1.25 * dt; posY += Math.sin(circA) * speed * 1.25 * dt
+      posX = Math.max(minX, Math.min(maxX, posX)); posY = Math.max(minY, Math.min(maxY, posY))
+      dir = Math.cos(circA) >= 0 ? 1 : -1
+      action = "fly"; frameT += dt
+      if (frameT >= 0.07) { frameT = 0; frame = (frame + 1) % 8 }
     } else if (trick === "smokering") {
       action = "sit"; frame = 0; trickRot = -5 * Math.sin(Math.PI * t) * dir
     } else if (trick === "yawn") {
@@ -632,6 +643,7 @@ PanelWindow {
   }
 
   function placeDragon() {
+    anchorX = 0; serpent.trail = []
     lastMs = 0; lastBrainMs = 0
     velX = 0; velY = 0; targetX = 0; targetY = 0
     support = null
@@ -907,10 +919,10 @@ PanelWindow {
 
   readonly property bool moving: action === "walk" || action === "fly" || action === "jump" || action === "fall" || action === "fire" || action === "bloat" || trick !== ""
   Timer {
-    interval: (win.moving || win.foodsFalling) ? 33 : ((win.action === "curl" || !win.pet.roamEnabled) ? 1000 : 100)
+    interval: (win.moving || win.foodsFalling || (serpent.visible && Math.abs(serpent.blend - (serpent.coil ? 1 : 0)) > 0.01)) ? 33 : ((win.action === "curl" || !win.pet.roamEnabled) ? 1000 : 100)
     repeat: true
     running: win.visible
-    onTriggered: win.tick()
+    onTriggered: { win.tick(); win.serpentUpdate() }
   }
 
   onVisibleChanged: if (visible) {
@@ -992,6 +1004,33 @@ PanelWindow {
   PoopSlot { id: p3; idx: 3 }
   PoopSlot { id: p4; idx: 4 }
   PoopSlot { id: p5; idx: 5 }
+
+  // The Celestial Dragon's long body, following its head.
+  SerpentBody {
+    id: serpent
+    visible: win.pet.stage >= 3 && win.pet.roamEnabled && !win.pet.evolving
+    px: win.scale
+    colorName: win.pet.colorName
+    dull: win.pet.unhappy
+    coil: win.action === "curl"
+    coilX: win.posX + win.spriteW * 0.52
+    coilY: win.posY + win.spriteH * 0.62
+    moving: win.action === "walk" || win.action === "fly" || win.action === "jump" || win.action === "fall"
+  }
+  property real anchorX: 0
+  property real lastSerpentMs: 0
+  function serpentUpdate() {
+    if (pet.stage < 3 || !pet.roamEnabled || pet.evolving || !serpent.visible) return
+    var now = Date.now(), dt = lastSerpentMs > 0 ? Math.min(0.15, (now - lastSerpentMs) / 1000) : 0.033
+    lastSerpentMs = now
+    var a = Sprites.anchor(pet.stage)
+    var tx = posX + (dir > 0 ? a.x : cells - a.x) * scale + trickDx
+    anchorX = anchorX === 0 ? tx : anchorX + (tx - anchorX) * Math.min(1, dt * 9)     // no jerk when it turns round
+    var ay = posY + a.y * scale + trickDy
+    if (serpent.trail.length === 0) serpent.reset(anchorX, ay, dir)
+    else serpent.push(anchorX, ay)
+    serpent.layout(dt)
+  }
 
   DragonSprite {
     id: sprite

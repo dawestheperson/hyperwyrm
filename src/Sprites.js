@@ -1955,8 +1955,10 @@ var NOSE = [{ x: 31, y: 20 }, { x: 28, y: 10 }, { x: 28, y: 13 }]
 function size(stage) { return stage >= 3 ? XL.SIZE : N }
 function _set(stage) { return stage >= 3 ? XL.FRAMES : FRAMES[stage < 0 ? "egg" : String(Math.max(0, Math.min(2, stage)))] }
 // Where the nose and the fire mouth are, in the frame's own pixel units.
-function nose(stage) { return stage >= 3 ? { x: 58.5, y: 24 } : NOSE[Math.max(0, Math.min(2, stage))] }
-function fireMouth(stage) { return stage >= 3 ? { x: 60.5, y: 25.5 } : FIRE_MOUTH }
+function nose(stage) { return stage >= 3 ? { x: 28.5, y: 11 } : NOSE[Math.max(0, Math.min(2, stage))] }
+function fireMouth(stage) { return stage >= 3 ? { x: 30.5, y: 14 } : FIRE_MOUTH }
+// Where the neck leaves the frame (the Celestial Dragon's long body attaches here).
+function anchor(stage) { return XL.ANCHOR }
 function frame(stage, action, index) {
   var s = _set(stage)
   var list = s[action] || s.idle

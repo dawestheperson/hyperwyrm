@@ -329,7 +329,7 @@ Item {
     joy = clamp(joy + f.joy)
     if (unhappy && snackRefused && !sneakSaid) { sneakSaid = true; say(Phrases.pick(Phrases.SNEAK)) }
     else say(Phrases.pick(Phrases.FED))
-    if (!wasFull && fullness >= 95 && roamEnabled && !unhappy) bloat()      // the last bite: it swells up, then sighs out a cloud of smoke
+    if (!wasFull && fullness >= 95 && roamEnabled && !unhappy && stage < 3) bloat()      // the last bite: it swells up, then sighs out a cloud of smoke
     if (wasFav && !unhappy) say(Phrases.pick(["My favourite! You remembered.", "Yes! " + f.label + "! Best snack.", "You know me so well."]))
     reward("feed", 3 + f.joy * 0.2)
     grow(f.fill * 1.0)          // 1 XP per point of fullness: care is the main way to grow
