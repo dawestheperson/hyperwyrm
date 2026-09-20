@@ -658,8 +658,9 @@ PanelWindow {
     var spotX = Math.max(minX, Math.min(maxX, fx * width - spriteW / 2))
     if (!flying && support) { beginJump(floorSurface, spotX); return true }
     if (Math.abs(posX + spriteW / 2 - (spotX + spriteW / 2)) > 1) dir = spotX > posX ? 1 : -1
-    if (steer(spotX, curlY, speed)) {
-      posX = spotX; posY = curlY
+    var restY = (pet.stage >= 3 && pet.form === "celestial") ? Math.max(minY, height * 0.22) : curlY      // the sky dragon sleeps on a cloud, up in the sky
+    if (steer(spotX, restY, speed)) {
+      posX = spotX; posY = restY
       velX = 0; velY = 0
       action = "curl"; frame = 0; frameT = 0; zStep = 0
       pet.restArrived()
@@ -1008,6 +1009,7 @@ PanelWindow {
     y: win.posY + win.trickDy - (win.bloatScale - 1) * win.spriteH / 2
     scale: win.bloatScale
     rotation: win.trickRot
+    opacity: (win.pet.stage >= 3 && win.pet.form === "spiritual") ? 0.55 : 1          // the Spiritual Dragon is a ghost
     transformOrigin: Item.Center
 
     MouseArea {

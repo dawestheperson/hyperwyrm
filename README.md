@@ -65,10 +65,10 @@ Growth comes from feeding and playing. Passive growth is capped just below the n
 
 ### Five final forms
 
-At 600 XP the Emperor Dragon becomes one of four traditional Chinese dragon types, or, if it was neglected, a skeleton. What decides it is the care it has had over its whole life.
+At 600 XP the Emperor Dragon becomes one of four traditional Chinese dragon types, or, if it was neglected, a zombie. What decides it is the care it has had over its whole life.
 
 <p align="center">
-  <img src="docs/art/final-forms.png" alt="The five final forms: celestial, spiritual, earth, treasure and skeleton" width="640">
+  <img src="docs/art/final-forms.png" alt="The five final forms: celestial, spiritual, earth, treasure and zombie" width="640">
 </p>
 
 | Form | Comes from | Look |
@@ -77,7 +77,7 @@ At 600 XP the Emperor Dragon becomes one of four traditional Chinese dragon type
 | **Spiritual Dragon** (Shenlong) | Lots of play and won games of tag | A storm cloud on its back, lightning and rain |
 | **Earth Dragon** (Dilong) | Steady feeding and keeping its home tidy | Water fins along its back and a stream flowing beneath it |
 | **Treasure Dragon** (Fuzanglong) | Many badges and gifts, and plenty of rest | Coin scales, a gem in its brow and its hoard at its feet |
-| **Skeleton Dragon** | Neglect: low happiness for too long | Bones, ribs and ghost-green fire |
+| **zombie Dragon** | Neglect: low happiness for too long | Bones, ribs and ghost-green fire |
 
 <p align="center">
   <img src="docs/art/colors.png" alt="The Emperor Dragon in all seven colours" width="640"><br>

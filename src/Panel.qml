@@ -207,7 +207,7 @@ Panel {
             font.bold: true
           }
           Text {
-            text: root.pet.isEgg ? "Pick a color, then hatch it." : root.pet.stageLabel + "  \u00b7  " + root.pet.mood
+            text: root.pet.isEgg ? "Pick a color, then hatch it." : root.pet.stageLabel + "  \u00b7  " + (root.pet.form === "zombie" && root.pet.stage >= 3 ? "groaning" : root.pet.mood)
             color: Qt.darker(root.bar.foreground, 1.4)
             font.family: root.bar.fontFamily
             font.pixelSize: Style.font.body

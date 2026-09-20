@@ -1920,8 +1920,16 @@ function _dull(c) {
 }
 
 // char -> fill style (cached per colour and mood).
+var FORM_PALETTES = {
+  // a tree: bark, moss, vines and leaves
+  earth: { o: "#241a10", m: "#7b5a3a", d: "#4d3823", h: "#a27b4d", l: "#9a7a52", b: "#6b4f30", a: "#2f8a2c", w: "#5a4029", n: "#58b03a", q: "#2f7a25" },
+  // a body of gold coins set with rubies (f) and sapphires (u)
+  treasure: { o: "#5a3a08", m: "#e8b923", d: "#b8891a", h: "#ffe27a", l: "#fff2b0", b: "#d9a521", a: "#4a7dff", w: "#c99a1c", f: "#e0243a", u: "#3f6fe0" },
+  // a zombie: grey-green rotting flesh, bone showing through
+  zombie: { o: "#1c2418", m: "#7f9a6a", d: "#4f6440", h: "#a8bf90", l: "#cfd0a8", b: "#5a4a3e", a: "#5a6b3a", w: "#65784f", f: "#9be07a", e: "#e6f26a" }
+}
 function palette(colorName, dull, form) {
-  var key = colorName + (dull ? "|dull" : "") + (form === "skeleton" ? "|skeleton" : "")
+  var key = colorName + (dull ? "|dull" : "") + (FORM_PALETTES[form] ? "|" + form : "")
   if (_palettes[key]) return _palettes[key]
   var c = COLORS[colorName] || COLORS.red
   var pal = {
@@ -1940,9 +1948,9 @@ function palette(colorName, dull, form) {
     y: "#ffe27a",
     c: "#f2f6ff", g: "#8b97b5", u: "#4aa8e8", s: "#2d6fb8", n: "#ffd23f", q: "#c9a227",     // clouds, water, gold (the stage-3 forms)
   }
-  if (form === "skeleton") {                       // bone, with ghost-green fire; the colour choice does not matter
-    pal.o = "#1c1c22"; pal.m = "#d6d8cc"; pal.d = "#969a8c"; pal.h = "#f0f2ea"; pal.l = "#e8eae0"
-    pal.b = "#32323a"; pal.a = "#7dffcf"; pal.w = "#b4b6aa"; pal.f = "#7dffb0"
+  if (FORM_PALETTES[form]) {                       // these forms have their own materials, whatever colour was picked
+    var fp = FORM_PALETTES[form]
+    for (var k in fp) pal[k] = fp[k]
   }
   if (dull) {
     var chars = ["o", "m", "d", "h", "l", "b", "a", "w"]

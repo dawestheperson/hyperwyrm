@@ -57,19 +57,19 @@ Item {
   property string form: ""
   property var care: ({ n: 0, sum: 0, unhappy: 0, play: 0, rest: 0, clean: 0, pets: 0, tag: 0 })
   readonly property var formNames: ({ celestial: "Celestial Dragon", spiritual: "Spiritual Dragon", earth: "Earth Dragon",
-    treasure: "Treasure Dragon", skeleton: "Skeleton Dragon" })
+    treasure: "Treasure Dragon", zombie: "Zombie Dragon" })
   readonly property var formBlurbs: ({
     celestial: "Tianlong, the sky dragon that guards the heavens. You cared for it beautifully.",
     spiritual: "Shenlong, the spirit dragon of wind, clouds and rain. All that play stirred up a storm.",
     earth: "Dilong, the earth dragon of rivers and streams. Steady feeding and a tidy home made it.",
     treasure: "Fuzanglong, guardian of hidden treasure. Every gift and quiet rest went into its hoard.",
-    skeleton: "A skeleton dragon. It was neglected for too long... but it still stays close." })
+    zombie: "A zombie dragon. It was neglected for too long. It never eats or sleeps now, and all it can do is groan." })
   readonly property string stageLabel: isEgg ? "Egg" : (stage >= 3 && form !== "" ? formNames[form] : stageNames[stage])
   // Which form it becomes, from how it has been cared for over its whole life.
   function chooseForm() {
     var c = care, n = Math.max(1, c.n)
     var avg = c.sum / n, unh = c.unhappy / n
-    if (c.n >= 10 && (avg < 40 || unh > 0.35)) return "skeleton"
+    if (c.n >= 10 && (avg < 40 || unh > 0.35)) return "zombie"
     var score = {
       celestial: Math.max(0, avg - 55) * 1.5 + bond * 0.6 + c.pets * 0.4,
       spiritual: c.play * 4 + c.tag * 8,
@@ -155,7 +155,9 @@ Item {
 
   function clamp(v) { return Math.max(0, Math.min(100, v)) }
 
+  readonly property var groans: ["Grrrooooan...", "Uurrrgh...", "Hrrrnnngh.", "Ohhhhhnnn...", "Gruhhh.", "Mrrrrrr...", "Aaarrghhh.", "Hhhhhhrrrr..."]
   function say(text) {
+    if (form === "zombie") text = groans[Math.floor(Math.random() * groans.length)]          // a zombie can only groan
     speech = text
     lastSpokeMs = Date.now()
     speechTimer.restart()
@@ -320,7 +322,7 @@ Item {
   }
   function clearFood() { foodQueue = []; clearFoodRequested() }
   function takeFood() { var q = foodQueue; foodQueue = []; return q }
-  readonly property bool canEat: fullness < 95
+  readonly property bool canEat: fullness < 95 && form !== "zombie"          // a zombie never eats
 
   // Learning: remember where and when you pet it; its favourite spot follows your habits.
   function learnCtx(fx) {
@@ -392,6 +394,7 @@ Item {
 
   function startRest() {
     if (isEgg || restPhase !== "") return
+    if (form === "zombie") { say(""); return }                                  // and never sleeps
     if (energy >= 90 && !sleeping) { say(Phrases.pick(Phrases.NOT_TIRED)); return }
     cancelPlay()
     if (roamEnabled) {
@@ -642,6 +645,7 @@ Item {
     running: root.initialized && root.hatched
     onTriggered: {
       root.tickCount++
+      if (root.form === "zombie") { root.fullness = 60; root.energy = 80; root.joy = 60 }      // no needs at all
       if (root.hatched) { var cc = root.care; cc.n++; cc.sum += (root.fullness + root.joy + root.energy) / 3; if (root.unhappy) cc.unhappy++ }
       var restingNow = root.restPhase === "resting"
       root.fullness = root.clamp(root.fullness - (restingNow ? 0.1 : 0.25))
@@ -718,6 +722,7 @@ Item {
       }
     }
     if (hatched && stage >= 3 && form === "") form = chooseForm()
+    if (form === "zombie") { fullness = 60; energy = 80; joy = 60 }
     initialized = true
     nextChatMs = Date.now() + 120000
     if (hatched && joy < 35) unhappy = true      // already sulking: no fresh storm-out on load
