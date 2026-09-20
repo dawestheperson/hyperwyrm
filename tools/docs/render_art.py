@@ -10,13 +10,14 @@ from PIL import Image
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "docs" / "art"
 NODE = r"""
-const fs = require('fs'), src = (f) => fs.readFileSync(f, 'utf8').replace('.pragma library', '');
+const fs = require('fs'), src = (f) => 'var SF = { W: 64, H: 32, MOUTH: {}, FORMS: {} };' + fs.readFileSync(f, 'utf8').replace('.pragma library', '').replace(/^\.import.*$/mg, '');
 const load = (f, names) => new Function(src(f) + '; return {' + names + '}')();
 const S = load(process.argv.slice(-2)[0], 'FRAMES, COLORS, palette');
 const F = load(process.argv.slice(-2)[1], 'ART, PAL, KINDS');
+const X = load(process.argv.slice(-2)[0].replace('Sprites', 'SpritesForms'), 'FORMS');
 const B = load(process.argv.slice(-2)[1].replace('Foods', 'Badges'), 'LIST, ART');
 const pal = {}; for (const c of Object.keys(S.COLORS)) pal[c] = S.palette(c, false);
-console.log(JSON.stringify({ frames: S.FRAMES, pal, food: F.ART, foodPal: F.PAL, kinds: F.KINDS, badges: B.LIST, badgeArt: B.ART }));
+console.log(JSON.stringify({ frames: S.FRAMES, pal, food: F.ART, foodPal: F.PAL, kinds: F.KINDS, badges: B.LIST, badgeArt: B.ART, xl: X.FORMS }));
 """
 
 def hexrgb(h):
@@ -51,6 +52,9 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     fr, pal = data["frames"], data["pal"]
     sheet([(fr["egg"]["idle"][0], pal["red"])] + [(fr[str(s)]["idle"][0], pal["red"]) for s in (0, 1, 2)], 8).save(OUT / "evolution.png")
+    skel = dict(pal["red"], o="#1c1c22", m="#d6d8cc", d="#969a8c", h="#f0f2ea", l="#e8eae0", b="#32323a", a="#7dffcf", w="#b4b6aa", f="#7dffb0")
+    extra = dict(c="#f2f6ff", g="#8b97b5", u="#4aa8e8", s="#2d6fb8", n="#ffd23f", q="#c9a227")
+    sheet([(data["xl"][f]["walk"][2], dict(skel if f == "skeleton" else pal["red"], **extra)) for f in ("celestial", "spiritual", "earth", "treasure", "skeleton")], 6, cols=2).save(OUT / "final-forms.png")
     sheet([(fr["2"]["idle"][0], pal[c]) for c in pal], 6).save(OUT / "colors.png")
     sheet([(data["food"][k], data["foodPal"]) for k in data["kinds"] + ["poop"]], 8).save(OUT / "foods.png")
     badge_pal = lambda t: {"o": dark(t, .55), "h": light(t, .6), "l": t, "m": dark(t, .75), "L": "#4fb85a", "y": "#ffe27a", "w": "#ffffff", "k": "#4a3626", "r": "#e8484f"}

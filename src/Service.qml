@@ -53,7 +53,34 @@ Item {
   readonly property real stageProgress: maxStage ? 1
     : (xp - stageXp[stage]) / (stageXp[stage + 1] - stageXp[stage])
   readonly property var stageNames: ["Wyrmling", "Wyvern", "Emperor Dragon", "Celestial Dragon"]
-  readonly property string stageLabel: isEgg ? "Egg" : stageNames[stage]
+  // The last stage branches by how it was raised: which of five dragons it becomes.
+  property string form: ""
+  property var care: ({ n: 0, sum: 0, unhappy: 0, play: 0, rest: 0, clean: 0, pets: 0, tag: 0 })
+  readonly property var formNames: ({ celestial: "Celestial Dragon", spiritual: "Spiritual Dragon", earth: "Earth Dragon",
+    treasure: "Treasure Dragon", skeleton: "Skeleton Dragon" })
+  readonly property var formBlurbs: ({
+    celestial: "Tianlong, the sky dragon that guards the heavens. You cared for it beautifully.",
+    spiritual: "Shenlong, the spirit dragon of wind, clouds and rain. All that play stirred up a storm.",
+    earth: "Dilong, the earth dragon of rivers and streams. Steady feeding and a tidy home made it.",
+    treasure: "Fuzanglong, guardian of hidden treasure. Every gift and quiet rest went into its hoard.",
+    skeleton: "A skeleton dragon. It was neglected for too long... but it still stays close." })
+  readonly property string stageLabel: isEgg ? "Egg" : (stage >= 3 && form !== "" ? formNames[form] : stageNames[stage])
+  // Which form it becomes, from how it has been cared for over its whole life.
+  function chooseForm() {
+    var c = care, n = Math.max(1, c.n)
+    var avg = c.sum / n, unh = c.unhappy / n
+    if (c.n >= 10 && (avg < 40 || unh > 0.35)) return "skeleton"
+    var score = {
+      celestial: Math.max(0, avg - 55) * 1.5 + bond * 0.6 + c.pets * 0.4,
+      spiritual: c.play * 4 + c.tag * 8,
+      earth: (prefs.fed || 0) * 1.0 + c.clean * 2.5,
+      treasure: badges.length * 5 + c.rest * 3
+    }
+    var best = "celestial", bv = -1
+    var order = ["celestial", "spiritual", "earth", "treasure"]
+    for (var i = 0; i < order.length; i++) if (score[order[i]] > bv) { bv = score[order[i]]; best = order[i] }
+    return best
+  }
   // Wyvern and Emperor Dragon fly; the Wyrmling walks on windows and the floor.
   readonly property bool flies: hatched && stage >= 1
   readonly property bool sleeping: hatched && energy < 10
@@ -184,7 +211,7 @@ Item {
     gameState = ""
     energy = clamp(energy - 6)
     if (gameScore >= 4) {
-      joy = clamp(joy + 10); reward("game", 6); awardBadge("tag")
+      joy = clamp(joy + 10); reward("game", 6); awardBadge("tag"); care.tag++
       say("You got me! Good game!")
     } else {
       joy = clamp(joy + 3)
@@ -230,6 +257,7 @@ Item {
   function grow(amount) {
     var before = stage
     xp += amount
+    if (stage >= 3 && form === "") form = chooseForm()
     if (stage > before && !evolving) {
       evolveFrom = before
       evolveScreenName = roamScreenName || focusedMonitorName()
@@ -245,7 +273,7 @@ Item {
     if (stage >= 2) awardBadge("grand")
     if (stage >= 3) awardBadge("celestial")
     if (roamEnabled) { spawnFx = 0.5; spawnFy = 0.5 }
-    say(Phrases.pick(Phrases.EVOLVE))
+    say(stage >= 3 && form !== "" ? formBlurbs[form] : Phrases.pick(Phrases.EVOLVE))
     markDirty(true)
   }
 
@@ -390,6 +418,7 @@ Item {
     markDirty(false)
   }
   function endRest() {
+    care.rest++
     restPhase = ""
     joy = clamp(joy + 5)
     reward("rest", 3)
@@ -410,6 +439,7 @@ Item {
     say(Phrases.pick(Phrases.PLAY_START))
   }
   function endPlay() {
+    care.play++
     if (!playing) return
     playing = false
     lastPlayMs = Date.now()
@@ -436,6 +466,7 @@ Item {
     var p = poops.filter(function(e) { return e.id !== id })
     if (p.length === poops.length) return
     poops = p
+    care.clean++
     delete stressNoted[id]
     joy = clamp(joy + 2)
     reward("clean", 1.5)
@@ -448,6 +479,7 @@ Item {
     if (isEgg) return
     if (unhappy) { joy = clamp(joy + 0.5); say(Phrases.pick(Phrases.GRUMBLE)); return }
     chatCount++
+    care.pets++
     joy = clamp(joy + 2)
     reward("pet", 1)
     say(Math.random() < 0.4 ? Phrases.pick(Phrases.PET)
@@ -468,6 +500,7 @@ Item {
 
   function newEgg() {
     gameState = ""; gameTick.stop(); prefs = Learner.fresh(); favSpotFx = -1
+    form = ""; care = { n: 0, sum: 0, unhappy: 0, play: 0, rest: 0, clean: 0, pets: 0, tag: 0 }
     hatched = false; xp = 0; fullness = 60; joy = 70; energy = 80; bond = 0
     unhappy = false; playing = false; restPhase = ""; foodQueue = []; poops = []; pendingPoops = []; stressNoted = ({})
     hatching = false; namingPending = false
@@ -609,6 +642,7 @@ Item {
     running: root.initialized && root.hatched
     onTriggered: {
       root.tickCount++
+      if (root.hatched) { var cc = root.care; cc.n++; cc.sum += (root.fullness + root.joy + root.energy) / 3; if (root.unhappy) cc.unhappy++ }
       var restingNow = root.restPhase === "resting"
       root.fullness = root.clamp(root.fullness - (restingNow ? 0.1 : 0.25))
       // A little passive growth while it is well looked after. It stops just short of the
@@ -641,7 +675,7 @@ Item {
     stateFile.setText(JSON.stringify({
       version: 3, colorName: colorName, petName: petName,
       hatched: hatched, xp: xp, fullness: fullness, joy: joy, energy: energy,
-      bond: bond, prefs: prefs, namingPending: namingPending, favSpotFx: favSpotFx, poops: poops, poopSeq: poopSeq,
+      bond: bond, prefs: prefs, form: form, care: care, namingPending: namingPending, favSpotFx: favSpotFx, poops: poops, poopSeq: poopSeq,
       badges: badges, roamEnabled: roamEnabled, savedAtMs: savedAtMs
     }))
     dirty = false
@@ -662,6 +696,12 @@ Item {
       bond = clamp(num(d.bond, 0))
       favSpotFx = num(d.favSpotFx, -1)
       prefs = Learner.sanitize(d.prefs)
+      if (typeof d.form === "string" && formNames[d.form] !== undefined) form = d.form
+      if (d.care && typeof d.care === "object") {
+        var cn = function(v) { v = Number(v); return isFinite(v) ? Math.max(0, Math.min(1e7, v)) : 0 }
+        care = { n: cn(d.care.n), sum: cn(d.care.sum), unhappy: cn(d.care.unhappy), play: cn(d.care.play), rest: cn(d.care.rest),
+                 clean: cn(d.care.clean), pets: cn(d.care.pets), tag: cn(d.care.tag) }
+      }
       if (Array.isArray(d.badges)) badges = d.badges.filter(function(b) { return Badges.find(b) }).filter(function(b, i, a) { return a.indexOf(b) === i })
       if (d.namingPending === true && hatched) { namingPending = true; hatching = true; hatchScreenName = focusedMonitorName() }
       poopSeq = Math.max(0, Math.floor(num(d.poopSeq, 0)))
@@ -677,6 +717,7 @@ Item {
         energy = clamp(energy + mins * 0.2)
       }
     }
+    if (hatched && stage >= 3 && form === "") form = chooseForm()
     initialized = true
     nextChatMs = Date.now() + 120000
     if (hatched && joy < 35) unhappy = true      // already sulking: no fresh storm-out on load

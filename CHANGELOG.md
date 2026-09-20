@@ -2,12 +2,7 @@
 
 ## Unreleased
 
-- The learning layer is now a fruit-fly mushroom-body model: what it learns depends on the situation (time, window, mood, position), not just totals.
-- New trick: a moonwalk, a backwards glide, a spin and a lean.
-
-## Unreleased
-
-- New fourth form: the Celestial Dragon (600 XP). It is very long: a chain of pixel-art segments follows its head, so it slithers across the screen, swims in circles and coils up in rings to rest.
+- New final stage at 600 XP with five branching forms, decided by how the dragon was raised: Celestial (Tianlong), Spiritual (Shenlong), Earth (Dilong), Treasure (Fuzanglong), or a Skeleton Dragon if it was neglected. Each is a 64x32 pixel-art dragon, twice as long as the others.
 - Removed the dance tricks. New: on the last bite before it is full, the dragon swells like a balloon, floats upside down, then sighs out a big plume of smoke; and it can blow smoke rings.
 
 ## 0.2.2

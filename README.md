@@ -35,13 +35,13 @@
 ## Features
 
 - **Lives on your screen.** Out of the bar it walks along window tops, jumps, falls and (once grown) flies over your applications. Only the dragon and its mess catch mouse clicks; everything else passes straight through.
-- **Four forms.** Feed and play with it and it grows from Wyrmling to Wyvern to Emperor Dragon to a huge Celestial Dragon, with a light-burst-and-confetti cutscene at each step. The bar icon changes with it.
+- **Growth and branching.** Feed and play with it and it grows from Wyrmling to Wyvern to Emperor Dragon, then into one of five final dragons depending on how you raised it, with a light-burst-and-confetti cutscene at each step. The bar icon changes with it.
 - **Real needs.** Fullness, happiness and energy drain over time. It gets hungry, sleepy and playful, and tells you so.
 - **Talks about what you are doing.** Its speech reacts to the window you have focused (terminal, browser, editor and so on) and to its own mood.
 - **Bond.** Every kind thing you do builds bond, which slows how fast it gets unhappy.
 - **A sulking mode.** Neglect it and a storm cloud follows it around, its colours fade, it refuses a first snack, huffs steam and stomps off to the edge of the screen.
 - **Mess to clean up.** It poops after eating. Leave it for 30 seconds and it stresses out.
-- **Happy tricks.** A cheerful dragon glows with sparkles and hearts for 90 seconds when it gets happy (and again every 30 minutes it stays that way), spins, does zoomies and loop-the-loops, blows smoke rings, and leaves gifts on the floor. Eat until full and on the last bite it swells up like a balloon, floats upside down, then sighs out a big cloud of smoke (all but the Celestial Dragon).
+- **Happy tricks.** A cheerful dragon glows with sparkles and hearts for 90 seconds when it gets happy (and again every 30 minutes it stays that way), spins, does zoomies and loop-the-loops, blows smoke rings, and leaves gifts on the floor. Eat until full and on the last bite it swells up like a balloon, floats upside down, then sighs out a big cloud of smoke.
 - **Badges.** Fourteen collectable gems, shown at the top right of its home menu.
 - **Tag.** An optional 20-second mini-game where the neural network runs from your cursor.
 - **It learns you.** It notices which tricks you react to and does those more, which snack you feed it most, where on the screen you pet it (and drifts and naps there), and roughly when you visit. The panel shows what it has learned so far.
@@ -59,9 +59,25 @@
 | **Wyrmling** | 0 | A small, snake-like serpent that slithers along the ground and window tops. |
 | **Wyvern** | 100 | Grows horns and a beard, and takes to the air. |
 | **Emperor Dragon** | 300 | A branched antler crown, a golden belly band and a crest. Breathes fire when it is completely fed, rested and happy. |
-| **Celestial Dragon** | 600 | A very long, winding eastern dragon: a chain of scaled segments that slithers after its head, loops in circles and curls up in rings to rest. It has antlers, whiskers, four clawed legs and a tall plume tail. |
+| **Final form** | 600 | Twice as long as the others, and it becomes one of five dragons depending on how you raised it (below). |
 
 Growth comes from feeding and playing. Passive growth is capped just below the next threshold, so evolving is always something you did.
+
+### Five final forms
+
+At 600 XP the Emperor Dragon becomes one of four traditional Chinese dragon types, or, if it was neglected, a skeleton. What decides it is the care it has had over its whole life.
+
+<p align="center">
+  <img src="docs/art/final-forms.png" alt="The five final forms: celestial, spiritual, earth, treasure and skeleton" width="640">
+</p>
+
+| Form | Comes from | Look |
+| --- | --- | --- |
+| **Celestial Dragon** (Tianlong) | Consistently good care, a strong bond, lots of petting | Rides on clouds, with a golden halo and a silk ribbon |
+| **Spiritual Dragon** (Shenlong) | Lots of play and won games of tag | A storm cloud on its back, lightning and rain |
+| **Earth Dragon** (Dilong) | Steady feeding and keeping its home tidy | Water fins along its back and a stream flowing beneath it |
+| **Treasure Dragon** (Fuzanglong) | Many badges and gifts, and plenty of rest | Coin scales, a gem in its brow and its hoard at its feet |
+| **Skeleton Dragon** | Neglect: low happiness for too long | Bones, ribs and ghost-green fire |
 
 <p align="center">
   <img src="docs/art/colors.png" alt="The Emperor Dragon in all seven colours" width="640"><br>

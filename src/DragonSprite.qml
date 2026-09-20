@@ -14,11 +14,11 @@ Item {
   property bool mirrored: false
   property bool egg: false
   property bool silhouette: false
+  property string form: ""             // for stage 3: celestial | spiritual | earth | treasure | skeleton
   property bool dull: false            // sulking: washed-out colours
 
-  readonly property int cells: egg ? Sprites.N : Sprites.size(stage)
-  implicitWidth: cells * px
-  implicitHeight: cells * px
+  implicitWidth: (egg ? Sprites.N : Sprites.width(stage)) * px
+  implicitHeight: (egg ? Sprites.N : Sprites.height(stage)) * px
 
   onStageChanged: canvas.requestPaint()
   onColorNameChanged: canvas.requestPaint()
@@ -29,6 +29,7 @@ Item {
   onEggChanged: canvas.requestPaint()
   onSilhouetteChanged: canvas.requestPaint()
   onDullChanged: canvas.requestPaint()
+  onFormChanged: canvas.requestPaint()
 
   Canvas {
     id: canvas
@@ -39,10 +40,10 @@ Item {
     onPaint: {
       var ctx = getContext("2d")
       ctx.clearRect(0, 0, width, height)
-      var pal = Sprites.palette(root.colorName, root.dull)
-      var rows = Sprites.frame(root.egg ? -1 : root.stage, root.egg ? "idle" : root.action, root.frame)
+      var pal = Sprites.palette(root.colorName, root.dull, root.stage >= 3 ? root.form : "")
+      var rows = Sprites.frame(root.egg ? -1 : root.stage, root.egg ? "idle" : root.action, root.frame, root.form)
       var p = root.px
-      var n = rows.length
+      var n = rows.length ? rows[0].length : Sprites.N
       for (var y = 0; y < rows.length; y++) {
         var row = rows[y]
         var x = 0

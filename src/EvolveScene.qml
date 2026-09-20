@@ -34,7 +34,8 @@ PanelWindow {
   WlrLayershell.namespace: "hyperwyrm-evolve"
   WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
-  readonly property int cells: Math.max(Sprites.size(fromStage), Sprites.size(toStage))      // 32, or 64 when the Celestial Dragon is involved
+  readonly property int cells: Math.max(Sprites.width(fromStage), Sprites.width(toStage))       // 32, or 64 when a stage-3 form is involved
+  readonly property int cellsH: Math.max(Sprites.height(fromStage), Sprites.height(toStage))
   readonly property int bigPx: Math.max(3, Math.min(14, Math.floor(Math.min(width, height) * 0.5 / cells)))
   readonly property int normalPx: 3
   readonly property int fromStage: pet.evolveFrom
@@ -153,7 +154,7 @@ PanelWindow {
     Item {
       id: box
       anchors.centerIn: parent
-      width: scene.cells * scene.pxNow; height: scene.cells * scene.pxNow
+      width: scene.cells * scene.pxNow; height: scene.cellsH * scene.pxNow
       transformOrigin: Item.Bottom
 
       property int frame: 0
@@ -181,13 +182,13 @@ PanelWindow {
       // new form, in colour
       DragonSprite {
         anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; px: box.spx
-        stage: scene.toStage; colorName: scene.pet.colorName; action: "walk"; frame: box.frame
+        stage: scene.toStage; form: scene.pet.form; colorName: scene.pet.colorName; action: "walk"; frame: box.frame
         opacity: (scene.phase === "burst" || scene.phase === "show" || scene.phase === "done") ? 1 : 0
       }
       // new form, white silhouette (flicker, then fades to colour)
       DragonSprite {
         anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; px: box.spx
-        stage: scene.toStage; colorName: scene.pet.colorName; action: "walk"; frame: box.frame
+        stage: scene.toStage; form: scene.pet.form; colorName: scene.pet.colorName; action: "walk"; frame: box.frame
         silhouette: true
         opacity: scene.phase === "flicker" ? (scene.altNew ? 1 : 0)
           : ((scene.phase === "burst" || scene.phase === "show") ? scene.silAlpha : 0)

@@ -1,15 +1,15 @@
 import math
-N=32
+W=32; H=32; N=32          # frame size; forms.py sets W and H before drawing wider frames
 class Canvas:
-    def __init__(s): s.g=[['.']*N for _ in range(N)]
+    def __init__(s): s.w=W; s.h=H; s.g=[['.']*s.w for _ in range(s.h)]
     def px(s,x,y,c):
         x=int(math.floor(x)); y=int(math.floor(y))
-        if 0<=x<N and 0<=y<N: s.g[y][x]=c
+        if 0<=x<s.w and 0<=y<s.h: s.g[y][x]=c
     def get(s,x,y):
-        return s.g[y][x] if 0<=x<N and 0<=y<N else '.'
+        return s.g[y][x] if 0<=x<s.w and 0<=y<s.h else '.'
     def ell(s,cx,cy,rx,ry,c,only=None):
-        for y in range(N):
-            for x in range(N):
+        for y in range(s.h):
+            for x in range(s.w):
                 if ((x+.5-cx)/rx)**2+((y+.5-cy)/ry)**2<=1:
                     if only is None or s.g[y][x] in only: s.g[y][x]=c
     def rect(s,x0,y0,x1,y1,c):
@@ -34,8 +34,8 @@ class Canvas:
             r=(th0+(th1-th0)*t)/2
             s.ell(x,y,max(r,.5),max(r,.5),c)
     def poly(s,pts,c):
-        for y in range(N):
-            for x in range(N):
+        for y in range(s.h):
+            for x in range(s.w):
                 px,py=x+.5,y+.5
                 inside=False
                 j=len(pts)-1
@@ -51,8 +51,8 @@ def shade(cv,chars='m'):
     """rim light top-left (h), rim shadow bottom-right (d) on plain body pixels"""
     g=cv.g
     out=[r[:] for r in g]
-    for y in range(N):
-        for x in range(N):
+    for y in range(cv.h):
+        for x in range(cv.w):
             if g[y][x]!='m': continue
             up=cv.get(x,y-1); lf=cv.get(x-1,y); dn=cv.get(x,y+1); rt=cv.get(x+1,y)
             if up=='.' or lf=='.': out[y][x]='h'
@@ -62,8 +62,8 @@ def shade(cv,chars='m'):
 def outline(cv, skip='fy'):
     g=cv.g
     out=[r[:] for r in g]
-    for y in range(N):
-        for x in range(N):
+    for y in range(cv.h):
+        for x in range(cv.w):
             if g[y][x]!='.': continue
             for dx,dy in((1,0),(-1,0),(0,1),(0,-1)):
                 c=cv.get(x+dx,y+dy)

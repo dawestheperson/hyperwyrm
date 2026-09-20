@@ -64,9 +64,10 @@ Panel {
       DragonSprite {
         anchors.centerIn: parent
         px: 1
-        scale: iconBox.size / cells
+        scale: iconBox.size / (implicitWidth / px)
         transformOrigin: Item.Center
         stage: root.ready ? root.pet.stage : 0
+        form: root.ready ? root.pet.form : ""
         colorName: root.ready ? root.pet.colorName : "red"
         dull: root.ready && root.pet.unhappy
         egg: root.ready ? root.pet.isEgg : true

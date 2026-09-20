@@ -1,5 +1,5 @@
 .pragma library
-.import "SpritesXL.js" as XL
+.import "SpritesForms.js" as SF
 
 // 32x32 pixel-art dragon, facing right. All frames are pre-rendered (walk 8,
 // idle 4, sleep 2, curl 2 per stage, fire 4 for the Emperor Dragon; two egg wobble frames), so drawing one costs a
@@ -1920,8 +1920,8 @@ function _dull(c) {
 }
 
 // char -> fill style (cached per colour and mood).
-function palette(colorName, dull) {
-  var key = colorName + (dull ? "|dull" : "")
+function palette(colorName, dull, form) {
+  var key = colorName + (dull ? "|dull" : "") + (form === "skeleton" ? "|skeleton" : "")
   if (_palettes[key]) return _palettes[key]
   var c = COLORS[colorName] || COLORS.red
   var pal = {
@@ -1938,6 +1938,11 @@ function palette(colorName, dull) {
     k: "#12121a",
     f: "#ff8a24",
     y: "#ffe27a",
+    c: "#f2f6ff", g: "#8b97b5", u: "#4aa8e8", s: "#2d6fb8", n: "#ffd23f", q: "#c9a227",     // clouds, water, gold (the stage-3 forms)
+  }
+  if (form === "skeleton") {                       // bone, with ghost-green fire; the colour choice does not matter
+    pal.o = "#1c1c22"; pal.m = "#d6d8cc"; pal.d = "#969a8c"; pal.h = "#f0f2ea"; pal.l = "#e8eae0"
+    pal.b = "#32323a"; pal.a = "#7dffcf"; pal.w = "#b4b6aa"; pal.f = "#7dffb0"
   }
   if (dull) {
     var chars = ["o", "m", "d", "h", "l", "b", "a", "w"]
@@ -1951,20 +1956,19 @@ function palette(colorName, dull) {
 var NOSE = [{ x: 31, y: 20 }, { x: 28, y: 10 }, { x: 28, y: 13 }]
 
 // One frame's 32 rows. `action` is walk | idle | sleep | curl | fire; `index` wraps.
-// The fourth form (Celestial Dragon) is 64x64; the others are 32x32.
-function size(stage) { return stage >= 3 ? XL.SIZE : N }
-function _set(stage) { return stage >= 3 ? XL.FRAMES : FRAMES[stage < 0 ? "egg" : String(Math.max(0, Math.min(2, stage)))] }
+// Stage 3 has five forms (celestial, spiritual, earth, treasure, skeleton), all 32x32.
+function width(stage) { return stage >= 3 ? SF.W : N }
+function height(stage) { return stage >= 3 ? SF.H : N }
+function _set(stage, form) { return stage >= 3 ? (SF.FORMS[form] || SF.FORMS.celestial) : FRAMES[stage < 0 ? "egg" : String(Math.max(0, Math.min(2, stage)))] }
 // Where the nose and the fire mouth are, in the frame's own pixel units.
-function nose(stage) { return stage >= 3 ? { x: 28.5, y: 11 } : NOSE[Math.max(0, Math.min(2, stage))] }
-function fireMouth(stage) { return stage >= 3 ? { x: 30.5, y: 14 } : FIRE_MOUTH }
-// Where the neck leaves the frame (the Celestial Dragon's long body attaches here).
-function anchor(stage) { return XL.ANCHOR }
-function frame(stage, action, index) {
-  var s = _set(stage)
+function nose(stage) { return stage >= 3 ? { x: NOSE[2].x + SF.W - N + 0.4, y: NOSE[2].y } : NOSE[Math.max(0, Math.min(2, stage))] }
+function fireMouth(stage) { return stage >= 3 ? SF.MOUTH : FIRE_MOUTH }
+function frame(stage, action, index, form) {
+  var s = _set(stage, form)
   var list = s[action] || s.idle
   return list[((index % list.length) + list.length) % list.length]
 }
-function frameCount(stage, action) {
-  var s = _set(stage)
+function frameCount(stage, action, form) {
+  var s = _set(stage, form)
   return (s[action] || s.idle).length
 }

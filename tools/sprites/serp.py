@@ -25,7 +25,7 @@ def head(cv,stage,hx,hy,ph,mode,blink,asleep,fire=0):
         for x in range(X+1,X+7): cv.px(x,Y+2,'d')
         if (mode=='walk' and math.sin(ph*2)>0) or (mode=='idle' and blink):
             cv.px(X+8,Y+1,'f'); cv.px(X+9,Y+1,'f'); cv.px(X+10,Y,'f'); cv.px(X+10,Y+2,'f')
-    elif stage==2:
+    elif stage>=2:
         grand_head(cv,hx,hy,ph,mode,blink,asleep,fire)
     else:
         big=False
@@ -92,7 +92,7 @@ def grand_head(cv,hx,hy,ph,mode,blink,asleep,fire=0):
     for i,(dx,dy) in enumerate(((-8,-10),(5,-12),(-12,-4),(9,-8))):
         if math.sin(ph*2+i*1.9)>0.25: cv.px(hx+dx,hy+dy,'y')
 
-def serp(stage,p=0.0,mode='walk',blink=False,breathe=0,asleep=False,fire=0):
+def serp(stage,p=0.0,mode='walk',blink=False,breathe=0,asleep=False,fire=0,adorn=None,post=None):
     c=CFG[stage]; cv=Canvas(); ph=2*math.pi*p
     amp=c['amp']*({'walk':1.0,'idle':0.55,'fire':0.4}.get(mode,0.3))
     if asleep: amp=c['amp']*0.25
@@ -113,17 +113,17 @@ def serp(stage,p=0.0,mode='walk',blink=False,breathe=0,asleep=False,fire=0):
     if c['tail_flame']:
         cv.poly([(tx-4,ty-2),(tx+1,ty-1),(tx+1.5,ty+3),(tx-1,ty+1.2)],'a')
         cv.poly([(tx-3.5,ty+3),(tx-0.5,ty+0.5),(tx-1,ty+5.5)],'a')
-        if stage==2:
+        if stage>=2:
             cv.poly([(tx-1,ty-3.5),(tx+2.5,ty-1.5),(tx+1,ty+1)],'a')
             cv.poly([(tx+0.5,ty+2),(tx+3,ty+3.5),(tx-0.5,ty+6.5)],'a')
     else:
         cv.poly([(tx-2.5,ty-1),(tx+1.2,ty-0.5),(tx+0.5,ty+2.5),(tx-1.5,ty+1)],'a')
     # ---- mane / back plates (behind body)
     if c['mane']:
-        step=3 if stage==2 else 4
+        step=3 if stage>=2 else 4
         for i in range(3,int(N_*0.88),step):
             (x,y),t,s=pts[i]
-            h=(3.6-2.4*s) if stage==2 else 2.4
+            h=(3.6-2.4*s) if stage>=2 else 2.4
             cv.poly([(x-1.8,y-t/2+1.2),(x+1.4,y-t/2+1.2),(x-1.2,y-t/2-h)],'a')
     else:
         for i in range(4,int(N_*0.7),4):
@@ -150,19 +150,21 @@ def serp(stage,p=0.0,mode='walk',blink=False,breathe=0,asleep=False,fire=0):
     for (x,y),t,s in pts:
         cv.ell(x,y,t/2+0.3,t/2+0.3,'m')
     if True:
-        for yy in range(32):
-            for xx in range(32):
+        for yy in range(cv.h):
+            for xx in range(cv.w):
                 if cv.g[yy][xx]=='m' and (xx+2*yy)%5==0: cv.g[yy][xx]='h'
     for (x,y),t,s in pts[:int(N_*0.78)]:
         yy=int(y+t/2-0.4)
-        if stage==2:                      # a broad golden belly band
+        if stage>=2:                      # a broad golden belly band
             for dy in (0,1,2):
                 if cv.get(int(x),yy-dy)=='m': cv.px(int(x),yy-dy,'l')
         else:
             for dy in (0,1):
                 if cv.get(int(x),yy-dy)=='m': cv.px(int(x),yy-dy,'l'); break
+    if adorn: adorn(cv,pts,ph,mode,(hx,hy))
     head(cv,stage,hx,hy,ph,mode,blink,asleep,fire)
     shade(cv); outline(cv)
+    if post: post(cv,pts,ph,mode,(hx,hy))
     return cv.rows()
 
 if __name__=='__main__':
@@ -171,11 +173,11 @@ if __name__=='__main__':
         png([serp(st,i/8) for i in range(8)],'/tmp/omg_s%d.png'%st,S=5,cols=4,pal=pal)
 
 
-def curl(stage, breathe=0):
+def curl(stage, breathe=0, adorn=None, post=None):
     """Resting pose: the body coiled on the ground, head laid on top, eyes shut."""
     cv=Canvas(); c=CFG[stage]
-    cx,cy=16.0,24.3
-    R0,RY=11.5,4.6
+    cx,cy=cv.w/2.0,24.3
+    R0,RY=11.5*cv.w/32.0,4.6
     br=1+0.07*breathe
     N_=48
     pts=[]
@@ -199,15 +201,17 @@ def curl(stage, breathe=0):
     for (x,y),t,s_ in order:
         cv.ell(x,y,t/2+0.3,t/2+0.3,'m')
     if stage>=1:
-        for yy in range(32):
-            for xx in range(32):
+        for yy in range(cv.h):
+            for xx in range(cv.w):
                 if cv.g[yy][xx]=='m' and (xx+2*yy)%5==0: cv.g[yy][xx]='h'
     for (x,y),t,s_ in pts[:int(N_*0.5)]:
         yy=int(y+t/2-0.4)
         for dy in (0,1):
             if cv.get(int(x),yy-dy)=='m': cv.px(int(x),yy-dy,'l'); break
     (hx,hy),_,_=pts[0]
-    hy_head={0:hy-3.0,1:hy-1.8,2:hy-1.8}[stage]
+    hy_head={0:hy-3.0,1:hy-1.8,2:hy-1.8,3:hy-1.8}[stage]
+    if adorn: adorn(cv,[(p[0],p[1],p[2]) for p in pts],0.0,'curl',(hx-3.0,hy_head))
     head(cv,stage,hx-3.0,hy_head,0.0,'idle',False,True)
     shade(cv); outline(cv)
+    if post: post(cv,pts,0.0,'curl',(hx-3.0,hy_head))
     return cv.rows()
