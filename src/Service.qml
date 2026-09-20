@@ -46,13 +46,13 @@ Item {
   property double savedAtMs: 0
 
   // --- derived ---------------------------------------------------------------
-  readonly property var stageXp: [0, 100, 300]
-  readonly property int stage: xp >= stageXp[2] ? 2 : (xp >= stageXp[1] ? 1 : 0)
+  readonly property var stageXp: [0, 100, 300, 600]
+  readonly property int stage: xp >= stageXp[3] ? 3 : (xp >= stageXp[2] ? 2 : (xp >= stageXp[1] ? 1 : 0))
   readonly property bool isEgg: !hatched
-  readonly property bool maxStage: stage >= 2
+  readonly property bool maxStage: stage >= 3
   readonly property real stageProgress: maxStage ? 1
     : (xp - stageXp[stage]) / (stageXp[stage + 1] - stageXp[stage])
-  readonly property var stageNames: ["Wyrmling", "Wyvern", "Emperor Dragon"]
+  readonly property var stageNames: ["Wyrmling", "Wyvern", "Emperor Dragon", "Celestial Dragon"]
   readonly property string stageLabel: isEgg ? "Egg" : stageNames[stage]
   // Wyvern and Emperor Dragon fly; the Wyrmling walks on windows and the floor.
   readonly property bool flies: hatched && stage >= 1
@@ -243,6 +243,7 @@ Item {
     if (!evolving) return
     evolving = false
     if (stage >= 2) awardBadge("grand")
+    if (stage >= 3) awardBadge("celestial")
     if (roamEnabled) { spawnFx = 0.5; spawnFy = 0.5 }
     say(Phrases.pick(Phrases.EVOLVE))
     markDirty(true)

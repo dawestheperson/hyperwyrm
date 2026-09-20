@@ -16,8 +16,9 @@ Item {
   property bool silhouette: false
   property bool dull: false            // sulking: washed-out colours
 
-  implicitWidth: Sprites.N * px
-  implicitHeight: Sprites.N * px
+  readonly property int cells: egg ? Sprites.N : Sprites.size(stage)
+  implicitWidth: cells * px
+  implicitHeight: cells * px
 
   onStageChanged: canvas.requestPaint()
   onColorNameChanged: canvas.requestPaint()
@@ -41,7 +42,7 @@ Item {
       var pal = Sprites.palette(root.colorName, root.dull)
       var rows = Sprites.frame(root.egg ? -1 : root.stage, root.egg ? "idle" : root.action, root.frame)
       var p = root.px
-      var n = Sprites.N
+      var n = rows.length
       for (var y = 0; y < rows.length; y++) {
         var row = rows[y]
         var x = 0

@@ -16,6 +16,7 @@ var LIST = [
   { id: "bond100", name: "Soulbound", color: "#ff3d6e", how: "Earned by reaching the maximum bond of 100." },
   { id: "fire", name: "Firebreather", color: "#ff9020", how: "Earned the first time the Emperor Dragon breathes fire, which needs full fullness, happiness and energy." },
   { id: "grand", name: "Emperor Form", color: "#e6c14d", how: "Earned by growing the dragon into an Emperor Dragon." },
+  { id: "celestial", name: "Celestial Form", color: "#ff9a4d", how: "Earned by growing the dragon into a Celestial Dragon." },
   { id: "tag", name: "Tag Champion", color: "#4fc3f7", how: "Earned by winning a game of tag: click the dragon 4 times in 20 seconds." }
 ]
 
@@ -134,7 +135,17 @@ var ART = {
    "........",
    "........"
   ],
-  "tag": [
+  "celestial": [
+  "...yy...",
+  "..yffy..",
+  ".yfeefy.",
+  "yfeyyefy",
+  "yfeyyefy",
+  ".yfeefy.",
+  "..yffy..",
+  "...yy..."
+ ],
+ "tag": [
    ".oooooo.",
    "ohllllmo",
    "ohllllmo",

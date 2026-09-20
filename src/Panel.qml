@@ -64,7 +64,7 @@ Panel {
       DragonSprite {
         anchors.centerIn: parent
         px: 1
-        scale: iconBox.size / 32
+        scale: iconBox.size / cells
         transformOrigin: Item.Center
         stage: root.ready ? root.pet.stage : 0
         colorName: root.ready ? root.pet.colorName : "red"
@@ -188,7 +188,7 @@ Panel {
         id: headerRow
         spacing: Style.space(12)
         DragonSprite {
-          px: 3
+          px: root.pet.stage >= 3 ? 2 : 3
           stage: root.pet.stage
           colorName: root.pet.colorName
           dull: root.pet.unhappy

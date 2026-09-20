@@ -34,7 +34,8 @@ PanelWindow {
   WlrLayershell.namespace: "hyperwyrm-evolve"
   WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
-  readonly property int bigPx: Math.max(6, Math.min(14, Math.floor(Math.min(width, height) * 0.5 / 32)))
+  readonly property int cells: Math.max(Sprites.size(fromStage), Sprites.size(toStage))      // 32, or 64 when the Celestial Dragon is involved
+  readonly property int bigPx: Math.max(3, Math.min(14, Math.floor(Math.min(width, height) * 0.5 / cells)))
   readonly property int normalPx: 3
   readonly property int fromStage: pet.evolveFrom
   readonly property int toStage: pet.stage
@@ -133,7 +134,7 @@ PanelWindow {
       delegate: Rectangle {
         required property int index
         anchors.centerIn: parent
-        width: 32 * scene.bigPx * (0.5 + index * 0.28)
+        width: scene.cells * scene.bigPx * (0.5 + index * 0.28)
         height: width
         radius: width / 2
         color: "white"
@@ -152,7 +153,7 @@ PanelWindow {
     Item {
       id: box
       anchors.centerIn: parent
-      width: 32 * scene.pxNow; height: 32 * scene.pxNow
+      width: scene.cells * scene.pxNow; height: scene.cells * scene.pxNow
       transformOrigin: Item.Bottom
 
       property int frame: 0
@@ -166,26 +167,26 @@ PanelWindow {
 
       // old form, in colour
       DragonSprite {
-        anchors.fill: parent; px: box.spx
+        anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; px: box.spx
         stage: scene.fromStage; colorName: scene.pet.colorName; action: "walk"; frame: box.frame
         opacity: scene.phase === "glow" ? 1 - scene.glowSil : 0
       }
       // old form, white silhouette
       DragonSprite {
-        anchors.fill: parent; px: box.spx
+        anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; px: box.spx
         stage: scene.fromStage; colorName: scene.pet.colorName; action: "walk"; frame: box.frame
         silhouette: true
         opacity: scene.phase === "glow" ? scene.glowSil : (scene.phase === "flicker" && !scene.altNew ? 1 : 0)
       }
       // new form, in colour
       DragonSprite {
-        anchors.fill: parent; px: box.spx
+        anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; px: box.spx
         stage: scene.toStage; colorName: scene.pet.colorName; action: "walk"; frame: box.frame
         opacity: (scene.phase === "burst" || scene.phase === "show" || scene.phase === "done") ? 1 : 0
       }
       // new form, white silhouette (flicker, then fades to colour)
       DragonSprite {
-        anchors.fill: parent; px: box.spx
+        anchors.bottom: parent.bottom; anchors.horizontalCenter: parent.horizontalCenter; px: box.spx
         stage: scene.toStage; colorName: scene.pet.colorName; action: "walk"; frame: box.frame
         silhouette: true
         opacity: scene.phase === "flicker" ? (scene.altNew ? 1 : 0)

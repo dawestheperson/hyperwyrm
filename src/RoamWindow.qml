@@ -34,14 +34,15 @@ PanelWindow {
   required property var pet
 
   readonly property int scale: 3
-  readonly property int spriteW: 32 * scale
-  readonly property int spriteH: 32 * scale
+  readonly property int cells: Sprites.size(pet.stage)          // 32, or 64 for the Celestial Dragon
+  readonly property int spriteW: cells * scale
+  readonly property int spriteH: cells * scale
   // Distance from the sprite's top edge to the soles of its feet (walking) or
   // to the ground (curled up).
-  readonly property int footOffset: [30, 31, 32][pet.stage] * scale
-  readonly property int curlOffset: 31 * scale
+  readonly property int footOffset: [30, 31, 32, 61][pet.stage] * scale
+  readonly property int curlOffset: [31, 31, 31, 58][pet.stage] * scale
   readonly property bool flying: pet.flies
-  readonly property real speed: [70, 95, 130][pet.stage] * (scale / 3)
+  readonly property real speed: [70, 95, 130, 160][pet.stage] * (scale / 3)
   readonly property int foodPx: 3
   readonly property int foodSize: 14 * foodPx
 
@@ -418,34 +419,42 @@ PanelWindow {
   property real bloatT: 0
   property bool bloatWaiting: false
   property bool exhaled: false
+  property bool bloatSaid: false
   Connections { target: win.pet; function onBloat() { win.bloatWaiting = true } }
   function nosePos() {
-    var n = Sprites.NOSE[Math.max(0, Math.min(2, pet.stage))]
-    return { x: sprite.x + (dir > 0 ? n.x : 32 - n.x) * scale, y: sprite.y + n.y * scale }
+    var n = Sprites.nose(pet.stage)
+    return { x: sprite.x + (dir > 0 ? n.x : cells - n.x) * scale, y: sprite.y + n.y * scale }
   }
   function blowRing() {
     var p = nosePos()
     puffFx.ring(p.x + dir * 18, p.y - 6, dir, 14, pet.stage >= 2 ? ["#fff3a8", "#ffd23f", "#ff9a2e"] : ["#f2f4f8", "#d5dae2", "#b4bcc9"])
   }
   function startBloat() {
-    bloatWaiting = false; bloatT = 0; exhaled = false; action = "bloat"; frame = 0
+    bloatWaiting = false; bloatT = 0; exhaled = false; bloatSaid = false; action = "bloat"; frame = 0
     velX = 0; velY = 0; targetX = 0; targetY = 0
     pet.say(Phrases.pick(["Ooof... so... full...", "One... more... bite... oof.", "I think I'm going to pop."]))
   }
   function stepBloat(dt) {
     bloatT += dt
     var b = bloatT
-    if (b < 1.5) { var u = b / 1.5; bloatScale = 1 + 0.34 * u * u * (3 - 2 * u); trickDx = 0 }
-    else if (b < 2.1) { bloatScale = 1.34 + 0.015 * Math.sin(b * 60); trickDx = Math.sin(b * 70) * 1.5 }   // trembling
-    else if (b < 3.4) {
-      trickDx = 0
-      bloatScale = 1 + 0.34 * Math.max(0, 1 - (b - 2.1) / 0.7)
-      if (!exhaled) { exhaled = true; pet.say(Phrases.pick(["*hhhhhhhhh* ...ahh. Much better.", "*long sigh* ...phew.", "Phew. Room for dessert."])) }
-      if (b < 3.0) {
+    if (b < 1.4) { var u = b / 1.4; bloatScale = 1 + 0.34 * u * u * (3 - 2 * u); trickDx = 0; trickRot = 0 }
+    else if (b < 1.9) {                                           // it flips over, belly up
+      var f = (b - 1.4) / 0.5; trickRot = 180 * f * f * (3 - 2 * f); bloatScale = 1.34
+    } else if (b < 4.3) {                                         // and floats there, swollen, bobbing gently
+      trickRot = 180 + Math.sin(b * 2.2) * 5; bloatScale = 1.34 + 0.012 * Math.sin(b * 45)
+      trickDy = Math.sin(b * 2.6) * 4; trickDx = Math.sin(b * 55) * 1.0
+      if (!bloatSaid && b > 2.4) { bloatSaid = true; pet.say(Phrases.pick(["Whee... the whole world is upside down.", "I'm a balloon. A very round dragon balloon.", "Hehe. Look, no wings needed."])) }
+    } else if (b < 4.8) {                                         // back the right way up
+      var g = (b - 4.3) / 0.5; trickRot = 180 + 180 * g * g * (3 - 2 * g); bloatScale = 1.34; trickDy = 0; trickDx = 0
+    } else if (b < 6.2) {                                         // the sigh: it deflates while a big plume of smoke rolls out
+      trickRot = 0; trickDx = 0; trickDy = 0
+      bloatScale = 1 + 0.34 * Math.max(0, 1 - (b - 4.8) / 0.8)
+      if (!exhaled) { exhaled = true; pet.say(Phrases.pick(["*hhhhhhhhh* ...ahh. That was fun. Do it again?", "*long sigh* ...I felt so light! Thanks for the snack.", "Pfffft. Best. Snack. Ever.", "*sigh* ...I could float away, but I'd miss you."])) }
+      if (b < 5.7) {
         var p = nosePos()
-        puffFx.puff(p.x, p.y, dir, 4, ["#f4f6fa", "#dfe3ea", "#c2c9d6", "#a4adbd"], 2.6)
+        puffFx.puff(p.x, p.y, dir, 4, ["#f4f6fa", "#dfe3ea", "#c2c9d6", "#a4adbd"], 2.8)
       }
-    } else { bloatScale = 1; trickDx = 0; action = "sit"; frame = 0; lastBrainMs = 0 }
+    } else { bloatScale = 1; trickRot = 0; trickDx = 0; trickDy = 0; action = "sit"; frame = 0; lastBrainMs = 0 }
   }
 
   // --- gifts -----------------------------------------------------------------
@@ -769,8 +778,8 @@ PanelWindow {
 
   // Grumpy little puffs from the nostril: steam, or (Emperor Dragon) a tiny fire puff.
   function emitPuff() {
-    var n = Sprites.NOSE[Math.max(0, Math.min(2, pet.stage))]
-    var x = sprite.x + (dir > 0 ? n.x : 32 - n.x) * scale
+    var n = Sprites.nose(pet.stage)
+    var x = sprite.x + (dir > 0 ? n.x : cells - n.x) * scale
     var y = sprite.y + n.y * scale
     if (pet.stage >= 2) puffFx.puff(x, y, dir, 6, ["#fff3a8", "#ffd23f", "#ff9a2e", "#d63a24"])
     else puffFx.puff(x, y, dir, 8, ["#f2f4f8", "#d5dae2", "#b4bcc9"])
@@ -843,9 +852,9 @@ PanelWindow {
       fireT += dt
       var ft = fireT
       frame = ft < 0.4 ? 0 : (ft < 0.65 ? 1 : (ft < 2.45 ? 2 + (Math.floor(ft * 10) % 2) : (ft < 2.7 ? 1 : 0)))
-      var mx = Sprites.FIRE_MOUTH.x, my = Sprites.FIRE_MOUTH.y
+      var fm = Sprites.fireMouth(pet.stage), mx = fm.x, my = fm.y
       fireFx.dir = dir
-      fireFx.ox = sprite.x + (dir > 0 ? mx : 32 - mx) * scale
+      fireFx.ox = sprite.x + (dir > 0 ? mx : cells - mx) * scale
       fireFx.oy = sprite.y + my * scale
       if (ft >= 3.0) { action = "sit"; frame = 0; lastBrainMs = 0 }
       return

@@ -1,4 +1,5 @@
 .pragma library
+.import "SpritesXL.js" as XL
 
 // 32x32 pixel-art dragon, facing right. All frames are pre-rendered (walk 8,
 // idle 4, sleep 2, curl 2 per stage, fire 4 for the Emperor Dragon; two egg wobble frames), so drawing one costs a
@@ -1950,12 +1951,18 @@ function palette(colorName, dull) {
 var NOSE = [{ x: 31, y: 20 }, { x: 28, y: 10 }, { x: 28, y: 13 }]
 
 // One frame's 32 rows. `action` is walk | idle | sleep | curl | fire; `index` wraps.
+// The fourth form (Celestial Dragon) is 64x64; the others are 32x32.
+function size(stage) { return stage >= 3 ? XL.SIZE : N }
+function _set(stage) { return stage >= 3 ? XL.FRAMES : FRAMES[stage < 0 ? "egg" : String(Math.max(0, Math.min(2, stage)))] }
+// Where the nose and the fire mouth are, in the frame's own pixel units.
+function nose(stage) { return stage >= 3 ? { x: 58.5, y: 24 } : NOSE[Math.max(0, Math.min(2, stage))] }
+function fireMouth(stage) { return stage >= 3 ? { x: 60.5, y: 25.5 } : FIRE_MOUTH }
 function frame(stage, action, index) {
-  var s = FRAMES[stage < 0 ? "egg" : String(Math.max(0, Math.min(2, stage)))]
+  var s = _set(stage)
   var list = s[action] || s.idle
   return list[((index % list.length) + list.length) % list.length]
 }
 function frameCount(stage, action) {
-  var s = FRAMES[stage < 0 ? "egg" : String(Math.max(0, Math.min(2, stage)))]
+  var s = _set(stage)
   return (s[action] || s.idle).length
 }
