@@ -180,8 +180,7 @@ PanelWindow {
   // fire breathing (Emperor Dragon)
   property real fireT: 0
 
-  property string trickAnim: ""          // a trick with its own frames (dance, moonwalk, spin)
-  readonly property string anim: trickAnim !== "" ? trickAnim : action === "curl" ? "curl" : action === "fire" ? "fire"
+  readonly property string anim: action === "curl" ? "curl" : action === "fire" ? "fire"
     : ((action === "walk" || action === "fly" || action === "jump" || action === "fall" || action === "held") ? "walk" : "idle")
 
   function startFall() { support = null; vy = 0; action = "fall" }
@@ -331,25 +330,23 @@ PanelWindow {
     var pool
     if (mood === "sleepy") pool = ["yawn"]
     else if (mood === "hungry") pool = ["rumble"]
-    else if (mood === "playful") pool = flying ? ["zoom", "spin", "loop", "dance", "moonwalk"] : ["zoom", "spin", "dance", "moonwalk"]
-    else pool = flying ? ["dance", "spin", "loop", "moonwalk"] : ["dance", "spin", "moonwalk"]
+    else if (mood === "playful") pool = flying ? ["zoom", "spin", "loop", "smokering"] : ["zoom", "spin", "smokering"]
+    else pool = flying ? ["spin", "loop", "smokering"] : ["spin", "smokering"]
     // Tricks you have reacted to before are picked more often (the learning layer).
     judgeTrick()
     lastCtx = pet.learnCtx((posX + spriteW / 2) / Math.max(1, width))
     trick = Learner.TRICKS.indexOf(pool[0]) >= 0 ? Learner.pickTrick(pet.prefs, pool, lastCtx) : pool[0]
     lastTrick = trick; lastTrickEnd = 0; trickLikedYet = false
     trickT = 0
-    trickDur = { spin: 0.9, loop: 1.5, dance: 3.0, zoom: 3.0, yawn: 2.2, rumble: 1.3, moonwalk: 4.6 }[trick]
+    trickDur = { spin: 0.9, loop: 1.5, zoom: 3.0, yawn: 2.2, rumble: 1.3, smokering: 2.0 }[trick]
     velX = 0; velY = 0; targetX = 0; targetY = 0
     if (trick === "yawn") pet.say(Phrases.pick(["*yaaaawn*", "*big yawn* ...sorry.", "So sleepy... *yawn*"]))
     else if (trick === "rumble") pet.say(Phrases.pick(["*grrrumble*", "That was my tummy. Not a monster.", "Feed me? Please?"]))
-    else if (trick === "dance") pet.say(Phrases.pick(["Dance time!", "La la la~", "*wiggle wiggle*"]))
-    else if (trick === "moonwalk") pet.say(Phrases.pick(["Hee-hee!", "Watch this glide.", "Smooth. Very smooth.", "Shamone!"]))
+    else if (trick === "smokering") { pet.say(Phrases.pick(["*puff* ...a smoke ring!", "Watch this one.", "I can do rings."])); blowRing() }
     else if (trick === "zoom") pet.say(Phrases.pick(["Zoomies!!", "Can't stop, won't stop!", "Wheee!"]))
   }
   function endTrick() {
     lastTrickEnd = Date.now()
-    trickAnim = ""
     trick = ""; trickRot = 0; trickDx = 0; trickDy = 0
     nextTrickAt = Date.now() + 25000 + Math.random() * 30000
     action = "sit"; frame = 0; lastBrainMs = 0
@@ -360,20 +357,14 @@ PanelWindow {
     trickT += dt
     var t = Math.min(1, trickT / trickDur)
     var ease = t * t * (3 - 2 * t)
-    // Dancers stand upright on two legs, so a flying dragon comes down to the ground first.
-    if (flying && (trick === "dance" || trick === "moonwalk" || trick === "spin")) posY += (floorY - posY) * Math.min(1, dt * 8)
     if (trick === "spin") {
-      trickAnim = "spin"; frame = Math.min(8, Math.floor(t * 9)); trickDy = 0
+      trickRot = 360 * ease * dir
+      trickDy = -Math.sin(Math.PI * t) * 46
     } else if (trick === "loop") {
       var R = 70
       trickRot = 360 * t * dir
       trickDx = R * Math.sin(2 * Math.PI * t) * dir
       trickDy = R * (Math.cos(2 * Math.PI * t) - 1)
-    } else if (trick === "dance") {
-      // moonwalk steps, four poses (point, lean, hat tip, toe stand), then a full spin
-      if (trickT < 0.5) { trickAnim = "moon"; frame = Math.floor(trickT / 0.125) % 4 }
-      else if (trickT < 2.0) { trickAnim = "pose"; frame = Math.min(3, Math.floor((trickT - 0.5) / 0.375)) }
-      else { trickAnim = "spin"; frame = Math.min(8, Math.floor((trickT - 2.0) / 0.11)) }
     } else if (trick === "zoom") {
       var mid = posX + spriteW * 0.5
       posX += dir * speed * 2.6 * dt
@@ -382,15 +373,8 @@ PanelWindow {
       posX = Math.max(minX, Math.min(maxX, posX)); posY = Math.max(minY, Math.min(maxY, posY))
       action = flying ? "fly" : "walk"; frameT += dt
       if (frameT >= 0.06) { frameT = 0; frame = (frame + 1) % 8 }
-    } else if (trick === "moonwalk") {
-      // Glide backwards on two legs with the feet sliding, spin once, then strike a lean.
-      if (t < 0.72) {
-        var mv = -dir * speed * 0.55 * dt, mw = posX + spriteW * 0.5
-        var atEdge = posX + mv <= minX || posX + mv >= maxX || (!flying && support && (mw + mv < support.x1 + 15 || mw + mv > support.x2 - 15))
-        if (!atEdge) posX += mv
-        trickAnim = "moon"; frame = Math.floor(trickT / 0.13) % 4
-      } else if (t < 0.9) { trickAnim = "spin"; frame = Math.min(8, Math.floor((t - 0.72) / 0.18 * 9)) }
-      else { trickAnim = "pose"; frame = 1 }
+    } else if (trick === "smokering") {
+      action = "sit"; frame = 0; trickRot = -5 * Math.sin(Math.PI * t) * dir
     } else if (trick === "yawn") {
       trickRot = -7 * Math.sin(Math.PI * t) * dir
       action = "sit"; frame = 0
@@ -427,6 +411,41 @@ PanelWindow {
       else if (j < 80) { win.glowing = false; glowTimer.stop(); sustainTimer.stop() }
       win.prevJoy = j
     }
+  }
+
+  // --- a full belly: on the last bite it swells like a balloon, then sighs out a big cloud of smoke ---
+  property real bloatScale: 1
+  property real bloatT: 0
+  property bool bloatWaiting: false
+  property bool exhaled: false
+  Connections { target: win.pet; function onBloat() { win.bloatWaiting = true } }
+  function nosePos() {
+    var n = Sprites.NOSE[Math.max(0, Math.min(2, pet.stage))]
+    return { x: sprite.x + (dir > 0 ? n.x : 32 - n.x) * scale, y: sprite.y + n.y * scale }
+  }
+  function blowRing() {
+    var p = nosePos()
+    puffFx.ring(p.x + dir * 18, p.y - 6, dir, 14, pet.stage >= 2 ? ["#fff3a8", "#ffd23f", "#ff9a2e"] : ["#f2f4f8", "#d5dae2", "#b4bcc9"])
+  }
+  function startBloat() {
+    bloatWaiting = false; bloatT = 0; exhaled = false; action = "bloat"; frame = 0
+    velX = 0; velY = 0; targetX = 0; targetY = 0
+    pet.say(Phrases.pick(["Ooof... so... full...", "One... more... bite... oof.", "I think I'm going to pop."]))
+  }
+  function stepBloat(dt) {
+    bloatT += dt
+    var b = bloatT
+    if (b < 1.5) { var u = b / 1.5; bloatScale = 1 + 0.34 * u * u * (3 - 2 * u); trickDx = 0 }
+    else if (b < 2.1) { bloatScale = 1.34 + 0.015 * Math.sin(b * 60); trickDx = Math.sin(b * 70) * 1.5 }   // trembling
+    else if (b < 3.4) {
+      trickDx = 0
+      bloatScale = 1 + 0.34 * Math.max(0, 1 - (b - 2.1) / 0.7)
+      if (!exhaled) { exhaled = true; pet.say(Phrases.pick(["*hhhhhhhhh* ...ahh. Much better.", "*long sigh* ...phew.", "Phew. Room for dessert."])) }
+      if (b < 3.0) {
+        var p = nosePos()
+        puffFx.puff(p.x, p.y, dir, 4, ["#f4f6fa", "#dfe3ea", "#c2c9d6", "#a4adbd"], 2.6)
+      }
+    } else { bloatScale = 1; trickDx = 0; action = "sit"; frame = 0; lastBrainMs = 0 }
   }
 
   // --- gifts -----------------------------------------------------------------
@@ -766,6 +785,7 @@ PanelWindow {
     stepFoods(dt)
     if (!pet.roamEnabled || pet.evolving) return
     if (action === "held") return
+    if (action === "bloat") { stepBloat(dt); return }
     if (trick !== "") { stepTrick(dt); return }
 
     if (pet.sleeping && pet.restPhase === "") pet.startRest()
@@ -835,6 +855,7 @@ PanelWindow {
       if (nextPuffAt > 0) emitPuff()
       nextPuffAt = now + 3500 + Math.random() * 4500
     }
+    if (bloatWaiting && (action === "sit" || action === "walk" || action === "fly")) { startBloat(); return }
     if (poopWaiting && (action === "sit" || action === "walk" || action === "fly")) { poopWaiting = false; doPoop() }
 
     // Who is in charge of the legs/wings this tick?
@@ -875,7 +896,7 @@ PanelWindow {
     posY = Math.max(minY, Math.min(maxY, posY))
   }
 
-  readonly property bool moving: action === "walk" || action === "fly" || action === "jump" || action === "fall" || action === "fire" || trick !== ""
+  readonly property bool moving: action === "walk" || action === "fly" || action === "jump" || action === "fall" || action === "fire" || action === "bloat" || trick !== ""
   Timer {
     interval: (win.moving || win.foodsFalling) ? 33 : ((win.action === "curl" || !win.pet.roamEnabled) ? 1000 : 100)
     repeat: true
@@ -974,7 +995,8 @@ PanelWindow {
     mirrored: win.dir === -1
     visible: win.pet.roamEnabled && !win.pet.evolving
     x: (win.pet.roamEnabled && !win.pet.evolving) ? win.posX + win.trickDx : -3000
-    y: win.posY + win.trickDy
+    y: win.posY + win.trickDy - (win.bloatScale - 1) * win.spriteH / 2
+    scale: win.bloatScale
     rotation: win.trickRot
     transformOrigin: Item.Center
 
@@ -1001,7 +1023,7 @@ PanelWindow {
           if (Math.abs(p.x - grabX - win.posX) < 6 && Math.abs(p.y - grabY - win.posY) < 6) return
           dragging = true
           win.pet.cancelRest()
-          win.trick = ""; win.trickRot = 0; win.trickDx = 0; win.trickDy = 0      // picking it up ends any trick
+          win.bloatScale = 1; win.trick = ""; win.trickRot = 0; win.trickDx = 0; win.trickDy = 0      // picking it up ends any trick
           win.action = "held"
           win.support = null
         }

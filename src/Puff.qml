@@ -10,15 +10,30 @@ Canvas {
   property real cell: 4
   property var parts: []
 
-  function puff(x, y, dir, count, palette) {
-    var list = parts.slice()
+  // mul makes the puffs bigger, faster and longer-lived (a big sigh of smoke).
+  function puff(x, y, dir, count, palette, mul) {
+    var m = mul || 1, list = parts.slice(), sq = Math.sqrt(m)
     for (var i = 0; i < count; i++)
       list.push({
-        x: x + (Math.random() - 0.5) * cell, y: y + (Math.random() - 0.5) * cell,
-        vx: dir * (30 + Math.random() * 80), vy: -(35 + Math.random() * 60),
-        size: cell * (0.9 + Math.random() * 0.9), age: 0, life: 0.7 + Math.random() * 0.5,
+        x: x + (Math.random() - 0.5) * cell * m, y: y + (Math.random() - 0.5) * cell * m,
+        vx: dir * (30 + Math.random() * 80) * sq, vy: -(35 + Math.random() * 60) * sq,
+        size: cell * m * (0.9 + Math.random() * 0.9), age: 0, life: (0.7 + Math.random() * 0.5) * (0.7 + 0.3 * m),
         color: palette[Math.floor(Math.random() * palette.length)]
       })
+    parts = list
+  }
+  // A ring of smoke drifting away in front of the mouth.
+  function ring(x, y, dir, count, palette) {
+    var list = parts.slice()
+    for (var i = 0; i < count; i++) {
+      var a = i / count * 2 * Math.PI
+      list.push({
+        x: x + Math.cos(a) * cell * 1.2, y: y + Math.sin(a) * cell * 1.2,
+        vx: dir * 55 + Math.cos(a) * 26, vy: Math.sin(a) * 26 - 8,
+        size: cell * 1.5, age: 0, life: 1.5,
+        color: palette[Math.floor(Math.random() * palette.length)]
+      })
+    }
     parts = list
   }
 

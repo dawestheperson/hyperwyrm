@@ -15,7 +15,7 @@
 //
 // The CfC network still decides how the dragon moves. This layer only biases what it chooses.
 
-var TRICKS = ["dance", "spin", "loop", "zoom", "moonwalk"]
+var TRICKS = ["spin", "loop", "zoom", "smokering"]
 var FOODS = ["apple", "cookie", "fish", "meat", "cake"]
 var SPOTS = 8
 var KC = 240              // Kenyon cells

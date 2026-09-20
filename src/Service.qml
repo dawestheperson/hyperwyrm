@@ -114,6 +114,7 @@ Item {
   signal poopDue()
   signal fireBreath()
   signal giftDue()
+  signal bloat()
   signal clearFoodRequested()
   // Every interaction it is rewarded for (feed, play, rest, clean). Bond grows
   // with these; this is also the hook for on-device learning.
@@ -320,12 +321,14 @@ Item {
     var f = Foods.INFO[kind]
     if (!f) return
     var wasFav = kind === favSnack
+    var wasFull = fullness >= 95
     var p = Learner.clone(prefs); Learner.ate(p, kind, learnCtx(0.5)); prefs = p
     if (wasFav) joy = clamp(joy + 3)
     fullness = clamp(fullness + f.fill)
     joy = clamp(joy + f.joy)
     if (unhappy && snackRefused && !sneakSaid) { sneakSaid = true; say(Phrases.pick(Phrases.SNEAK)) }
     else say(Phrases.pick(Phrases.FED))
+    if (!wasFull && fullness >= 95 && roamEnabled && !unhappy) bloat()      // the last bite: it swells up, then sighs out a cloud of smoke
     if (wasFav && !unhappy) say(Phrases.pick(["My favourite! You remembered.", "Yes! " + f.label + "! Best snack.", "You know me so well."]))
     reward("feed", 3 + f.joy * 0.2)
     grow(f.fill * 1.0)          // 1 XP per point of fullness: care is the main way to grow
