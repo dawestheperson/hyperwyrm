@@ -180,7 +180,8 @@ PanelWindow {
   // fire breathing (Emperor Dragon)
   property real fireT: 0
 
-  readonly property string anim: action === "curl" ? "curl" : action === "fire" ? "fire"
+  property string trickAnim: ""          // a trick with its own frames (dance, moonwalk, spin)
+  readonly property string anim: trickAnim !== "" ? trickAnim : action === "curl" ? "curl" : action === "fire" ? "fire"
     : ((action === "walk" || action === "fly" || action === "jump" || action === "fall" || action === "held") ? "walk" : "idle")
 
   function startFall() { support = null; vy = 0; action = "fall" }
@@ -338,7 +339,7 @@ PanelWindow {
     trick = Learner.TRICKS.indexOf(pool[0]) >= 0 ? Learner.pickTrick(pet.prefs, pool, lastCtx) : pool[0]
     lastTrick = trick; lastTrickEnd = 0; trickLikedYet = false
     trickT = 0
-    trickDur = { spin: 0.9, loop: 1.5, dance: 2.2, zoom: 3.0, yawn: 2.2, rumble: 1.3, moonwalk: 4.6 }[trick]
+    trickDur = { spin: 0.9, loop: 1.5, dance: 3.0, zoom: 3.0, yawn: 2.2, rumble: 1.3, moonwalk: 4.6 }[trick]
     velX = 0; velY = 0; targetX = 0; targetY = 0
     if (trick === "yawn") pet.say(Phrases.pick(["*yaaaawn*", "*big yawn* ...sorry.", "So sleepy... *yawn*"]))
     else if (trick === "rumble") pet.say(Phrases.pick(["*grrrumble*", "That was my tummy. Not a monster.", "Feed me? Please?"]))
@@ -348,6 +349,7 @@ PanelWindow {
   }
   function endTrick() {
     lastTrickEnd = Date.now()
+    trickAnim = ""
     trick = ""; trickRot = 0; trickDx = 0; trickDy = 0
     nextTrickAt = Date.now() + 25000 + Math.random() * 30000
     action = "sit"; frame = 0; lastBrainMs = 0
@@ -358,19 +360,20 @@ PanelWindow {
     trickT += dt
     var t = Math.min(1, trickT / trickDur)
     var ease = t * t * (3 - 2 * t)
+    // Dancers stand upright on two legs, so a flying dragon comes down to the ground first.
+    if (flying && (trick === "dance" || trick === "moonwalk" || trick === "spin")) posY += (floorY - posY) * Math.min(1, dt * 8)
     if (trick === "spin") {
-      trickRot = 360 * ease * dir
-      trickDy = -Math.sin(Math.PI * t) * 46
+      trickAnim = "spin"; frame = Math.min(8, Math.floor(t * 9)); trickDy = 0
     } else if (trick === "loop") {
       var R = 70
       trickRot = 360 * t * dir
       trickDx = R * Math.sin(2 * Math.PI * t) * dir
       trickDy = R * (Math.cos(2 * Math.PI * t) - 1)
     } else if (trick === "dance") {
-      trickRot = 9 * Math.sin(trickT * 13)
-      trickDy = -Math.abs(Math.sin(trickT * 6.5)) * 12
-      action = "walk"; frameT += dt
-      if (frameT >= 0.11) { frameT = 0; frame = (frame + 1) % 8 }
+      // moonwalk steps, four poses (point, lean, hat tip, toe stand), then a full spin
+      if (trickT < 0.5) { trickAnim = "moon"; frame = Math.floor(trickT / 0.125) % 4 }
+      else if (trickT < 2.0) { trickAnim = "pose"; frame = Math.min(3, Math.floor((trickT - 0.5) / 0.375)) }
+      else { trickAnim = "spin"; frame = Math.min(8, Math.floor((trickT - 2.0) / 0.11)) }
     } else if (trick === "zoom") {
       var mid = posX + spriteW * 0.5
       posX += dir * speed * 2.6 * dt
@@ -380,21 +383,14 @@ PanelWindow {
       action = flying ? "fly" : "walk"; frameT += dt
       if (frameT >= 0.06) { frameT = 0; frame = (frame + 1) % 8 }
     } else if (trick === "moonwalk") {
-      // Glide backwards with the legs still walking forwards, spin, then strike a lean.
+      // Glide backwards on two legs with the feet sliding, spin once, then strike a lean.
       if (t < 0.72) {
         var mv = -dir * speed * 0.55 * dt, mw = posX + spriteW * 0.5
         var atEdge = posX + mv <= minX || posX + mv >= maxX || (!flying && support && (mw + mv < support.x1 + 15 || mw + mv > support.x2 - 15))
         if (!atEdge) posX += mv
-        action = flying ? "fly" : "walk"; frameT += dt
-        if (frameT >= 0.09) { frameT = 0; frame = (frame + 1) % 8 }
-        trickDy = -Math.abs(Math.sin(trickT * 9)) * 3
-      } else if (t < 0.88) {
-        var u = (t - 0.72) / 0.16
-        trickRot = 360 * u * dir; trickDy = -Math.sin(Math.PI * u) * 30
-        action = "sit"; frame = 0
-      } else {
-        trickRot = 26 * dir; trickDy = 0; action = "sit"; frame = 0
-      }
+        trickAnim = "moon"; frame = Math.floor(trickT / 0.13) % 4
+      } else if (t < 0.9) { trickAnim = "spin"; frame = Math.min(8, Math.floor((t - 0.72) / 0.18 * 9)) }
+      else { trickAnim = "pose"; frame = 1 }
     } else if (trick === "yawn") {
       trickRot = -7 * Math.sin(Math.PI * t) * dir
       action = "sit"; frame = 0

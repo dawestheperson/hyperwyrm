@@ -1,4 +1,5 @@
 .pragma library
+.import "SpriteDance.js" as SD
 
 // 32x32 pixel-art dragon, facing right. All frames are pre-rendered (walk 8,
 // idle 4, sleep 2, curl 2 per stage, fire 4 for the Emperor Dragon; two egg wobble frames), so drawing one costs a
@@ -1950,12 +1951,17 @@ function palette(colorName, dull) {
 var NOSE = [{ x: 31, y: 20 }, { x: 28, y: 10 }, { x: 28, y: 13 }]
 
 // One frame's 32 rows. `action` is walk | idle | sleep | curl | fire; `index` wraps.
+// Upright dance frames (moonwalk, pose, spin) live in SpriteDance.js.
+function _dance(stage, action) {
+  var d = SD.DANCE[String(Math.max(0, Math.min(2, stage)))]
+  return d ? d[action] : undefined
+}
 function frame(stage, action, index) {
   var s = FRAMES[stage < 0 ? "egg" : String(Math.max(0, Math.min(2, stage)))]
-  var list = s[action] || s.idle
+  var list = s[action] || _dance(stage, action) || s.idle
   return list[((index % list.length) + list.length) % list.length]
 }
 function frameCount(stage, action) {
   var s = FRAMES[stage < 0 ? "egg" : String(Math.max(0, Math.min(2, stage)))]
-  return (s[action] || s.idle).length
+  return (s[action] || _dance(stage, action) || s.idle).length
 }
