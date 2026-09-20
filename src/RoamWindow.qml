@@ -309,8 +309,9 @@ PanelWindow {
   property string lastTrick: ""
   property double lastTrickEnd: 0
   property bool trickLikedYet: false
+  property var lastCtx: ({})
   function judgeTrick() {
-    if (lastTrick !== "" && !trickLikedYet) pet.learnTrick(lastTrick, false)
+    if (lastTrick !== "" && !trickLikedYet) pet.learnTrick(lastTrick, false, lastCtx)
     lastTrick = ""
   }
   Connections {
@@ -320,7 +321,7 @@ PanelWindow {
       var end = win.lastTrickEnd > 0 ? win.lastTrickEnd : Date.now()
       if (Date.now() - end > 10000) return
       win.trickLikedYet = true
-      win.pet.learnTrick(win.lastTrick, true)
+      win.pet.learnTrick(win.lastTrick, true, win.lastCtx)
       if (Math.random() < 0.4) win.pet.say(Phrases.pick(["You liked that one! I'll do it more.", "Ooh, a fan! More " + win.lastTrick + "s coming.", "Noted: you like the " + win.lastTrick + "."]))
     }
   }
@@ -329,18 +330,20 @@ PanelWindow {
     var pool
     if (mood === "sleepy") pool = ["yawn"]
     else if (mood === "hungry") pool = ["rumble"]
-    else if (mood === "playful") pool = flying ? ["zoom", "spin", "loop", "dance"] : ["zoom", "spin", "dance"]
-    else pool = flying ? ["dance", "spin", "loop"] : ["dance", "spin"]
+    else if (mood === "playful") pool = flying ? ["zoom", "spin", "loop", "dance", "moonwalk"] : ["zoom", "spin", "dance", "moonwalk"]
+    else pool = flying ? ["dance", "spin", "loop", "moonwalk"] : ["dance", "spin", "moonwalk"]
     // Tricks you have reacted to before are picked more often (the learning layer).
     judgeTrick()
-    trick = Learner.TRICKS.indexOf(pool[0]) >= 0 ? Learner.pickTrick(pet.prefs, pool) : pool[0]
+    lastCtx = pet.learnCtx((posX + spriteW / 2) / Math.max(1, width))
+    trick = Learner.TRICKS.indexOf(pool[0]) >= 0 ? Learner.pickTrick(pet.prefs, pool, lastCtx) : pool[0]
     lastTrick = trick; lastTrickEnd = 0; trickLikedYet = false
     trickT = 0
-    trickDur = { spin: 0.9, loop: 1.5, dance: 2.2, zoom: 3.0, yawn: 2.2, rumble: 1.3 }[trick]
+    trickDur = { spin: 0.9, loop: 1.5, dance: 2.2, zoom: 3.0, yawn: 2.2, rumble: 1.3, moonwalk: 4.6 }[trick]
     velX = 0; velY = 0; targetX = 0; targetY = 0
     if (trick === "yawn") pet.say(Phrases.pick(["*yaaaawn*", "*big yawn* ...sorry.", "So sleepy... *yawn*"]))
     else if (trick === "rumble") pet.say(Phrases.pick(["*grrrumble*", "That was my tummy. Not a monster.", "Feed me? Please?"]))
     else if (trick === "dance") pet.say(Phrases.pick(["Dance time!", "La la la~", "*wiggle wiggle*"]))
+    else if (trick === "moonwalk") pet.say(Phrases.pick(["Hee-hee!", "Watch this glide.", "Smooth. Very smooth.", "Shamone!"]))
     else if (trick === "zoom") pet.say(Phrases.pick(["Zoomies!!", "Can't stop, won't stop!", "Wheee!"]))
   }
   function endTrick() {
@@ -376,6 +379,22 @@ PanelWindow {
       posX = Math.max(minX, Math.min(maxX, posX)); posY = Math.max(minY, Math.min(maxY, posY))
       action = flying ? "fly" : "walk"; frameT += dt
       if (frameT >= 0.06) { frameT = 0; frame = (frame + 1) % 8 }
+    } else if (trick === "moonwalk") {
+      // Glide backwards with the legs still walking forwards, spin, then strike a lean.
+      if (t < 0.72) {
+        var mv = -dir * speed * 0.55 * dt, mw = posX + spriteW * 0.5
+        var atEdge = posX + mv <= minX || posX + mv >= maxX || (!flying && support && (mw + mv < support.x1 + 15 || mw + mv > support.x2 - 15))
+        if (!atEdge) posX += mv
+        action = flying ? "fly" : "walk"; frameT += dt
+        if (frameT >= 0.09) { frameT = 0; frame = (frame + 1) % 8 }
+        trickDy = -Math.abs(Math.sin(trickT * 9)) * 3
+      } else if (t < 0.88) {
+        var u = (t - 0.72) / 0.16
+        trickRot = 360 * u * dir; trickDy = -Math.sin(Math.PI * u) * 30
+        action = "sit"; frame = 0
+      } else {
+        trickRot = 26 * dir; trickDy = 0; action = "sit"; frame = 0
+      }
     } else if (trick === "yawn") {
       trickRot = -7 * Math.sin(Math.PI * t) * dir
       action = "sit"; frame = 0
@@ -523,7 +542,7 @@ PanelWindow {
     var gm = pet.gameState === "run" ? 1.5 : (pet.mood === "sleepy" ? 0.6 : 1)
     var tvx = o[0] * speed * gm, tvy = flying ? o[1] * speed * gm : 0
     // Learned favourite spot (where you pet it): a gentle pull back towards it, stronger the closer you are.
-    if (pet.gameState !== "run") tvx += Learner.spotBias(pet.prefs, posX / Math.max(1, width - spriteW)) * speed * 0.3 * (0.4 + pet.bond / 100)
+    if (pet.gameState !== "run") tvx += Learner.spotBias(pet.prefs, posX / Math.max(1, width - spriteW), pet.learnCtx(posX / Math.max(1, width))) * speed * 0.3 * (0.4 + pet.bond / 100)
     brainRest = o[2]; brainJump = o[3]
     if (brainRest > 0.3) { tvx = 0; tvy = 0 }
     targetX = tvx; targetY = tvy

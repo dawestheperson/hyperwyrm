@@ -41,7 +41,7 @@
 - **Bond.** Every kind thing you do builds bond, which slows how fast it gets unhappy.
 - **A sulking mode.** Neglect it and a storm cloud follows it around, its colours fade, it refuses a first snack, huffs steam and stomps off to the edge of the screen.
 - **Mess to clean up.** It poops after eating. Leave it for 30 seconds and it stresses out.
-- **Happy tricks.** A cheerful dragon glows with sparkles and hearts for 90 seconds when it gets happy (and again every 30 minutes it stays that way), dances, spins, does zoomies and loop-the-loops, and leaves gifts on the floor.
+- **Happy tricks.** A cheerful dragon glows with sparkles and hearts for 90 seconds when it gets happy (and again every 30 minutes it stays that way), dances, spins, does zoomies and loop-the-loops, and even a moonwalk, and leaves gifts on the floor.
 - **Badges.** Fourteen collectable gems, shown at the top right of its home menu.
 - **Tag.** An optional 20-second mini-game where the neural network runs from your cursor.
 - **It learns you.** It notices which tricks you react to and does those more, which snack you feed it most, where on the screen you pet it (and drifts and naps there), and roughly when you visit. The panel shows what it has learned so far.
@@ -142,16 +142,16 @@ The network is trained offline by distilling a hand-written teacher policy (see 
 
 ### The learning layer
 
-On top of the CfC brain sits a small online learner ([`src/Learner.js`](src/Learner.js)) that adapts to what you reward. It does not retrain the network: the CfC still decides how the dragon moves, and the learner biases what it chooses and where it drifts.
+Alongside the CfC (which steers the body) sits a small learner ([`src/Learner.js`](src/Learner.js)) modelled on the **fruit fly's mushroom body**, the part of the fly brain that learns. In the fly, a few thousand Kenyon cells turn what the animal senses into a sparse code, and a reward signal (dopamine) strengthens or weakens their connections to output neurons. Here the "situation" is the hour, the kind of window you are using, the dragon's mood and where it is on screen; the outputs are choices (which trick, which snack, which part of the screen). It is a simplified model, not the real wiring, and a few hundred numbers in total. It does not retrain the CfC; it biases what the dragon chooses.
 
 | It learns | From | Effect |
 | --- | --- | --- |
-| Favourite trick | Petting it within 10 s of a trick counts as a "like" (a bandit update) | Liked tricks are picked more often; ignored ones fade |
+| Which tricks you like, and when | Petting it within 10 s of a trick is a reward; being ignored is a small penalty | Liked tricks are picked more often, in the situations where you liked them (spin in the evening on a terminal, say) |
 | Favourite snack | What you feed it | Your favourite gives a happiness bonus and a special line |
 | Favourite spot | Where on the screen you pet it | It drifts back there, and its resting spot moves there |
 | Usual time | The hour of day you interact | Shown in the panel |
 
-It is a few dozen numbers, saved with the pet and reset with a new egg. Old habits fade, so it follows changes in yours.
+It is saved with the pet and reset with a new egg.
 
 ### Cost
 

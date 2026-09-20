@@ -293,17 +293,21 @@ Item {
   readonly property bool canEat: fullness < 95
 
   // Learning: remember where and when you pet it; its favourite spot follows your habits.
+  function learnCtx(fx) {
+    var d = new Date()
+    return Learner.context(d.getHours() + d.getMinutes() / 60, category, mood, fx)
+  }
   function learnTouch(fx) {
     var p = Learner.clone(prefs)
-    Learner.touch(p, fx, new Date().getHours() + new Date().getMinutes() / 60)
+    Learner.touch(p, fx, new Date().getHours() + new Date().getMinutes() / 60, learnCtx(fx))
     prefs = p
-    var s = Learner.favSpotFx(p)
+    var s = Learner.favSpotFx(p, learnCtx(fx))
     if (s >= 0) favSpotFx = s
     markDirty(false)
   }
-  function learnTrick(trick, liked) {
+  function learnTrick(trick, liked, ctx) {
     var p = Learner.clone(prefs)
-    if (liked) Learner.trickLiked(p, trick); else Learner.trickIgnored(p, trick)
+    if (liked) Learner.trickLiked(p, trick, ctx); else Learner.trickIgnored(p, trick, ctx)
     prefs = p
     markDirty(false)
   }
@@ -316,7 +320,7 @@ Item {
     var f = Foods.INFO[kind]
     if (!f) return
     var wasFav = kind === favSnack
-    var p = Learner.clone(prefs); Learner.ate(p, kind); prefs = p
+    var p = Learner.clone(prefs); Learner.ate(p, kind, learnCtx(0.5)); prefs = p
     if (wasFav) joy = clamp(joy + 3)
     fullness = clamp(fullness + f.fill)
     joy = clamp(joy + f.joy)

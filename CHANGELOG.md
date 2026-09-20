@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- The learning layer is now a fruit-fly mushroom-body model: what it learns depends on the situation (time, window, mood, position), not just totals.
+- New trick: a moonwalk, a backwards glide, a spin and a lean.
+
 ## 0.2.2
 
 - New learning layer: the dragon learns which tricks you react to, your favourite snack, where you pet it and when you visit. The panel shows what it has learned.
