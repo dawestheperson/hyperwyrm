@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "dawestheperson.hyperwyrm",
   "name": "Hyperwyrm",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": "dawestheperson",
   "description": "A pixel-art eastern dragon pet driven by a tiny CfC neural network. It lives in your bar, roams your windows, grows through three forms and sulks when neglected.",
   "kinds": [

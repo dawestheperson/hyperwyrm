@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.2.2
 
 - New learning layer: the dragon learns which tricks you react to, your favourite snack, where you pet it and when you visit. The panel shows what it has learned.
+- Fixed high idle CPU: a hidden cutscene ran an endless animation that kept the overlay redrawing at the monitor's full refresh rate. A put-away dragon now costs nothing measurable, and a walking one about 7% of a core, down from about 18%.
+- README: measured runtime cost.
 
 ## 0.2.1
 

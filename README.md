@@ -155,12 +155,22 @@ It is a few dozen numbers, saved with the pet and reset with a new egg. Old habi
 
 ### Cost
 
-Designed to be close to free.
+Measured on the author's machine (Intel UHD graphics, 1920x1080 at 1.25x scale), running the plugin alone in a separate Quickshell against an empty one. CPU is a share of one core over 30-second windows; version 0.2.2.
 
-- The roaming overlay draws at 30 fps only while the dragon is moving, at 10 fps while it sits, and once a second while it sleeps.
-- The brain step takes about 2 ms and runs at 10 Hz, only while it is roaming and awake.
-- Needs update on a single 60-second timer; the shell reads the Hyprland event stream only for the active window's class.
-- Sprites are pre-rendered 32x32 pixel-art frames. Nothing is computed while drawing them.
+| State | CPU | Memory over an empty shell |
+| --- | --- | --- |
+| Empty Quickshell (reference) | 0.0% | 0 MB |
+| Plugin loaded, dragon put away | 0.0% | +48 MB |
+| Wyrmling walking | 6.6% | +97 MB |
+| Emperor Dragon flying | 7.1% | +96 MB |
+| Resting (curled up) | 2.6% | +102 MB |
+| Sulking (storm cloud, steam) | 5.7% | +108 MB |
+| Play (cursor polled 10 times a second) | 7.6% | +98 MB |
+
+- A dragon that is put away costs nothing measurable. Only the bar icon and the game clock (one 60-second timer) remain.
+- A brain step takes about 2 ms and runs 10 times a second, only while the dragon is out and awake.
+- Most of the cost while it moves is redrawing the transparent full-screen overlay. It redraws at about 20 frames a second while walking and not at all while it sits still.
+- Sprites are pre-rendered 32x32 pixel-art frames, so nothing is computed while drawing them.
 
 ## Project layout
 
