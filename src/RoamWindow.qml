@@ -333,10 +333,14 @@ PanelWindow {
     else if (mood === "hungry") pool = ["rumble"]
     else if (mood === "playful") pool = flying ? ["zoom", "spin", "loop", "smokering"] : ["zoom", "spin", "smokering"]
     else pool = flying ? ["spin", "loop", "smokering"] : ["spin", "smokering"]
+    if (pet.stage >= 3 && pet.form === "earth" && mood !== "sleepy" && mood !== "hungry") pool = pool.concat(["burrow"])
+    if (pet.stage >= 3 && pet.form === "spiritual" && mood !== "sleepy" && mood !== "hungry") pool = pool.concat(["wormhole", "wormhole"])
     // Tricks you have reacted to before are picked more often (the learning layer).
     judgeTrick()
     lastCtx = pet.learnCtx((posX + spriteW / 2) / Math.max(1, width))
     trick = Learner.TRICKS.indexOf(pool[0]) >= 0 ? Learner.pickTrick(pet.prefs, pool, lastCtx) : pool[0]
+    if (trick === "wormhole") { trick = ""; lastTrick = ""; startWormhole(); return }
+    if (trick === "burrow") { trick = ""; lastTrick = ""; startBurrow(false); return }
     lastTrick = trick; lastTrickEnd = 0; trickLikedYet = false
     trickT = 0
     trickDur = { spin: 0.9, loop: 1.5, zoom: 3.0, yawn: 2.2, rumble: 1.3, smokering: 2.0 }[trick]
@@ -456,6 +460,130 @@ PanelWindow {
       }
     } else { bloatScale = 1; trickRot = 0; trickDx = 0; trickDy = 0; action = "sit"; frame = 0; lastBrainMs = 0 }
   }
+
+  // --- wormholes (Spiritual Dragon): it steps into a grey swirl and comes out somewhere far across the screen ---
+  property int wormPhase: -1           // -1 none | 0 open | 1 going in | 2 switch | 3 coming out | 4 close
+  property real wormT: 0
+  property real portalA: 0             // how open each wormhole is
+  property real portalB: 0
+  property real ax: 0
+  property real ay: 0
+  property real bx: 0
+  property real by: 0
+  function startWormhole() {
+    var margin = 80
+    ax = Math.max(margin, Math.min(width - margin, posX + spriteW / 2 + dir * spriteW * 0.7))
+    ay = Math.max(margin, Math.min(height - margin, posY + spriteH / 2))
+    // the exit is far away: at least 45% of the screen across
+    var far = []
+    for (var i = 0; i < 12; i++) {
+      var x = margin + Math.random() * (width - 2 * margin)
+      if (Math.abs(x - ax) >= width * 0.45) far.push(x)
+    }
+    bx = far.length ? far[Math.floor(Math.random() * far.length)] : (ax < width / 2 ? width - margin : margin)
+    by = height * (0.2 + Math.random() * 0.55)
+    wormPhase = 0; wormT = 0; portalA = 0; portalB = 0; action = "worm"; frame = 0
+    velX = 0; velY = 0; targetX = 0; targetY = 0
+    pet.say(Phrases.pick(["Hold on tight.", "Opening a wormhole...", "I know a shortcut."]))
+  }
+  function cancelWormhole() {
+    if (wormPhase < 0) return
+    wormPhase = -1; portalA = 0; portalB = 0; bloatScale = 1
+  }
+  function stepWorm(dt) {
+    wormT += dt
+    var e = function(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u) }
+    if (wormPhase === 0) {                                        // the near wormhole opens
+      portalA = e(wormT / 0.55); dir = ax > posX + spriteW / 2 ? 1 : -1
+      if (wormT >= 0.7) { wormPhase = 1; wormT = 0; wx0 = posX; wy0 = posY }
+    } else if (wormPhase === 1) {                                 // it dives into it, shrinking as it goes
+      var u = e(wormT / 1.0)
+      posX = wx0 + (ax - spriteW / 2 - wx0) * u; posY = wy0 + (ay - spriteH / 2 - wy0) * u
+      bloatScale = 1 - 0.86 * u
+      if (wormT >= 1.05) { wormPhase = 2; wormT = 0 }
+    } else if (wormPhase === 2) {                                 // it is gone; the far wormhole opens as the near one closes
+      bloatScale = 0.02
+      posX = bx - spriteW / 2; posY = by - spriteH / 2
+      portalA = 1 - e(wormT / 0.45); portalB = e(wormT / 0.5)
+      dir = bx < width / 2 ? 1 : -1
+      if (wormT >= 0.55) { wormPhase = 3; wormT = 0 }
+    } else if (wormPhase === 3) {                                 // and out it comes, growing back
+      var v = e(wormT / 1.0)
+      bloatScale = 0.14 + 0.86 * v
+      posX = bx - spriteW / 2 + dir * spriteW * 0.3 * v; posY = by - spriteH / 2
+      if (wormT >= 1.05) { wormPhase = 4; wormT = 0; bloatScale = 1; pet.say(Phrases.pick(["Ta-da! Over here!", "That was fun. Again?", "Made it. Nothing to see here."])) }
+    } else if (wormPhase === 4) {
+      portalB = 1 - e(wormT / 0.5)
+      if (wormT >= 0.55) { wormPhase = -1; portalB = 0; action = "sit"; frame = 0; lastBrainMs = 0; nextTrickAt = Date.now() + 25000 + Math.random() * 30000 }
+    }
+    posX = Math.max(-spriteW, Math.min(width, posX)); posY = Math.max(-spriteH, Math.min(height, posY))
+  }
+  property real wx0: 0
+  property real wy0: 0
+
+  // --- burrowing (Earth Dragon): it spins in on itself, dives straight down and sleeps underground; a flower
+  //     marks the spot, and withers when it comes up somewhere else ---
+  property int burrowPhase: -1         // -1 none | 0 spin | 1 dive | 2 underground | 3 erupt | 4 flower withers
+  property real burrowT: 0
+  property bool burrowRest: false      // true: stay under until its rest is over
+  property bool burrowHidden: false
+  property bool flowerOn: false
+  property bool flowerWither: false
+  property real flowerX: 0
+  property real bx0: 0
+  property real by0: 0
+  property real exitX: 0
+  function startBurrow(forRest) {
+    burrowRest = forRest; burrowPhase = 0; burrowT = 0; burrowHidden = false; action = "burrow"; frame = 0
+    velX = 0; velY = 0; targetX = 0; targetY = 0; bx0 = posX; by0 = posY
+    pet.say(Phrases.pick(["Time to dig in.", "Down I go.", "Back to the roots."]))
+  }
+  function cancelBurrow() {
+    if (burrowPhase < 0) return
+    burrowPhase = -1; burrowHidden = false; flowerOn = false; flowerWither = false; trickRot = 0; bloatScale = 1
+  }
+  function stepBurrow(dt) {
+    burrowT += dt
+    var e = function(u) { u = Math.max(0, Math.min(1, u)); return u * u * (3 - 2 * u) }
+    var ground = floorY
+    if (burrowPhase === 0) {                                      // it coils and spins in on itself
+      var u = e(burrowT / 1.3)
+      trickRot = 720 * u * dir; bloatScale = 1 - 0.42 * u
+      posY = by0 + (ground - by0) * e(burrowT / 0.6)
+      if (burrowT >= 1.35) { burrowPhase = 1; burrowT = 0; burrowFxSet() }
+    } else if (burrowPhase === 1) {                               // then shoots straight down into the ground
+      var t = burrowT / 0.7
+      trickRot = 90 * dir * e(burrowT / 0.15)
+      posY = ground + t * t * spriteH * 2.4
+      if (burrowT >= 0.15 && !flowerOn) { flowerOn = true; flowerWither = false; flowerX = exitX }
+      if (burrowT >= 0.75) { burrowPhase = 2; burrowT = 0; burrowHidden = true }
+    } else if (burrowPhase === 2) {                               // asleep underground
+      var done = burrowRest ? pet.restPhase !== "resting" : burrowT > 10
+      if (done) {
+        var far = []
+        for (var i = 0; i < 12; i++) {
+          var x = spriteW / 2 + Math.random() * (width - spriteW)
+          if (Math.abs(x - flowerX) >= width * 0.3) far.push(x)
+        }
+        var ex = far.length ? far[Math.floor(Math.random() * far.length)] : (flowerX < width / 2 ? width * 0.8 : width * 0.2)
+        posX = Math.max(minX, Math.min(maxX, ex - spriteW / 2))
+        dir = posX + spriteW / 2 < width / 2 ? 1 : -1
+        burrowPhase = 3; burrowT = 0; burrowHidden = false; flowerWither = true
+        puffFx.puff(posX + spriteW / 2, height - 8, 0, 14, ["#6b4f30", "#8a6a44", "#4d3823", "#a27b4d"], 2.4)
+      }
+    } else if (burrowPhase === 3) {                               // it erupts from the ground somewhere else
+      var v = e(burrowT / 1.2)
+      trickRot = -90 * dir * (1 - v); bloatScale = 0.58 + 0.42 * v
+      posY = ground + (1 - v) * spriteH * 2.4 - Math.sin(Math.PI * v) * spriteH * 0.6
+      if (burrowT >= 1.25) { burrowPhase = 4; burrowT = 0; trickRot = 0; bloatScale = 1; posY = ground; pet.say(Phrases.pick(["Ahh, fresh air. Well, fresh soil.", "Good nap. Roots feel great.", "Up and at it."])) }
+    } else if (burrowPhase === 4) {
+      if (burrowT >= 1.7) {
+        burrowPhase = -1; flowerOn = false; flowerWither = false; action = "sit"; frame = 0; lastBrainMs = 0
+        nextTrickAt = Date.now() + 25000 + Math.random() * 30000
+      }
+    }
+  }
+  function burrowFxSet() { exitX = posX + spriteW / 2 }
 
   // --- gifts -----------------------------------------------------------------
   property var gift: null
@@ -659,6 +787,11 @@ PanelWindow {
     if (!flying && support) { beginJump(floorSurface, spotX); return true }
     if (Math.abs(posX + spriteW / 2 - (spotX + spriteW / 2)) > 1) dir = spotX > posX ? 1 : -1
     var restY = (pet.stage >= 3 && pet.form === "celestial") ? Math.max(minY, height * 0.22) : curlY      // the sky dragon sleeps on a cloud, up in the sky
+    if (pet.stage >= 3 && pet.form === "earth") {
+      // the Earth Dragon does not curl up: it spins into the ground and sleeps underground
+      if (steer(spotX, curlY, speed)) { pet.restArrived(); startBurrow(true) }
+      return true
+    }
     if (steer(spotX, restY, speed)) {
       posX = spotX; posY = restY
       velX = 0; velY = 0
@@ -796,6 +929,8 @@ PanelWindow {
     if (!pet.roamEnabled || pet.evolving) return
     if (action === "held") return
     if (action === "bloat") { stepBloat(dt); return }
+    if (action === "worm") { stepWorm(dt); return }
+    if (action === "burrow") { stepBurrow(dt); return }
     if (trick !== "") { stepTrick(dt); return }
 
     if (pet.sleeping && pet.restPhase === "") pet.startRest()
@@ -906,7 +1041,7 @@ PanelWindow {
     posY = Math.max(minY, Math.min(maxY, posY))
   }
 
-  readonly property bool moving: action === "walk" || action === "fly" || action === "jump" || action === "fall" || action === "fire" || action === "bloat" || trick !== ""
+  readonly property bool moving: action === "walk" || action === "fly" || action === "jump" || action === "fall" || action === "fire" || action === "bloat" || action === "worm" || action === "burrow" || trick !== ""
   Timer {
     interval: (win.moving || win.foodsFalling) ? 33 : ((win.action === "curl" || !win.pet.roamEnabled) ? 1000 : 100)
     repeat: true
@@ -994,6 +1129,10 @@ PanelWindow {
   PoopSlot { id: p4; idx: 4 }
   PoopSlot { id: p5; idx: 5 }
 
+  Flower { id: flower; visible: win.flowerOn; withered: win.flowerWither; cell: win.scale; x: win.flowerX - width / 2; y: win.height - height - 2 }
+  Wormhole { id: holeA; cell: win.scale; open: win.portalA; x: win.ax - width / 2; y: win.ay - height / 2 }
+  Wormhole { id: holeB; cell: win.scale; open: win.portalB; x: win.bx - width / 2; y: win.by - height / 2 }
+
   DragonSprite {
     id: sprite
     px: win.scale
@@ -1004,7 +1143,7 @@ PanelWindow {
     action: win.anim
     frame: win.frame
     mirrored: win.dir === -1
-    visible: win.pet.roamEnabled && !win.pet.evolving
+    visible: win.pet.roamEnabled && !win.pet.evolving && !win.burrowHidden
     x: (win.pet.roamEnabled && !win.pet.evolving) ? win.posX + win.trickDx : -3000
     y: win.posY + win.trickDy - (win.bloatScale - 1) * win.spriteH / 2
     scale: win.bloatScale
@@ -1035,7 +1174,7 @@ PanelWindow {
           if (Math.abs(p.x - grabX - win.posX) < 6 && Math.abs(p.y - grabY - win.posY) < 6) return
           dragging = true
           win.pet.cancelRest()
-          win.bloatScale = 1; win.trick = ""; win.trickRot = 0; win.trickDx = 0; win.trickDy = 0      // picking it up ends any trick
+          win.cancelWormhole(); win.cancelBurrow(); win.bloatScale = 1; win.trick = ""; win.trickRot = 0; win.trickDx = 0; win.trickDy = 0      // picking it up ends any trick
           win.action = "held"
           win.support = null
         }
@@ -1121,7 +1260,7 @@ PanelWindow {
 
   Rectangle {
     id: bubble
-    visible: win.pet.speech !== "" && win.pet.roamEnabled && !win.pet.evolving
+    visible: win.pet.speech !== "" && win.pet.roamEnabled && !win.pet.evolving && !win.burrowHidden
     color: Color.popups.background
     border.color: Color.popups.border
     border.width: 1

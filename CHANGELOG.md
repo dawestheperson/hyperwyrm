@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- New final stage at 600 XP with five branching forms, decided by how the dragon was raised: Celestial (Tianlong), Spiritual (Shenlong), Earth (Dilong), Treasure (Fuzanglong), or a zombie Dragon if it was neglected. Each is a 64x32 pixel-art dragon, twice as long as the others.
+- New final stage at 600 XP with five branching forms, decided by how the dragon was raised: Celestial (Tianlong, sleeps on a cloud), Spiritual (Shenlong, a ghost that opens wormholes), Earth (Dilong, a tree that burrows and leaves a flower), Treasure (Fuzanglong, a body of gold coins and gems) or, if it was neglected, a Zombie Dragon that only groans. Each is a 64x32 pixel-art dragon, twice as long as the others.
 - Removed the dance tricks. New: on the last bite before it is full, the dragon swells like a balloon, floats upside down, then sighs out a big plume of smoke; and it can blow smoke rings.
 
 ## 0.2.2

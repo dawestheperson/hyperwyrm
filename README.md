@@ -71,13 +71,13 @@ At 600 XP the Emperor Dragon becomes one of four traditional Chinese dragon type
   <img src="docs/art/final-forms.png" alt="The five final forms: celestial, spiritual, earth, treasure and zombie" width="640">
 </p>
 
-| Form | Comes from | Look |
+| Form | Comes from | What it does |
 | --- | --- | --- |
-| **Celestial Dragon** (Tianlong) | Consistently good care, a strong bond, lots of petting | Rides on clouds, with a golden halo and a silk ribbon |
-| **Spiritual Dragon** (Shenlong) | Lots of play and won games of tag | A storm cloud on its back, lightning and rain |
-| **Earth Dragon** (Dilong) | Steady feeding and keeping its home tidy | Water fins along its back and a stream flowing beneath it |
-| **Treasure Dragon** (Fuzanglong) | Many badges and gifts, and plenty of rest | Coin scales, a gem in its brow and its hoard at its feet |
-| **zombie Dragon** | Neglect: low happiness for too long | Bones, ribs and ghost-green fire |
+| **Celestial Dragon** (Tianlong) | Consistently good care, a strong bond, lots of petting | A golden halo. It sleeps on a cloud, up in the sky. |
+| **Spiritual Dragon** (Shenlong) | Lots of play and won games of tag | A translucent spirit. It opens wormholes: a grey swirling oval that it dives into, coming out at a random spot far across the screen. |
+| **Earth Dragon** (Dilong) | Steady feeding and keeping its home tidy | Bark, vines and leaves. To rest, it spins in on itself, shoots straight down and sleeps underground; a flower pops up where it went in and withers when it comes out somewhere else. |
+| **Treasure Dragon** (Fuzanglong) | Many badges and gifts, and plenty of rest | A body of gold coins studded with rubies and sapphires. It sleeps on a pile of gold. |
+| **Zombie Dragon** | Neglect: low happiness for too long | Rotting and stitched. It never eats or sleeps, and can only groan. |
 
 <p align="center">
   <img src="docs/art/colors.png" alt="The Emperor Dragon in all seven colours" width="640"><br>
