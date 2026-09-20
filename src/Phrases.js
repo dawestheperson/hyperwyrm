@@ -25,7 +25,7 @@ function categorize(cls) {
 
 // What it says when you switch to a kind of window.
 var BY_CATEGORY = {
-  terminal: ["Ooh, the hacker cave.", "Type faster, I'm hungry for output.", "sudo feed dragon?", "Is it compiling? Or burning?", "Careful with rm -rf. I mean it.", "So many tiny letters!", "I'll guard the command line.", "Press enter dramatically."],
+  terminal: ["Ooh, the hacker cave.", "Type faster, I'm hungry for output.", "Feed the dragon? Please?", "Is it compiling? Or burning?", "Careful deleting things. I mean it.", "So many tiny letters!", "I'll guard the command line.", "Press enter dramatically."],
   editor:   ["Writing code? I'll guard the semicolons.", "Bugs are just tiny worms. I eat them.", "Ship it!", "Tabs or spaces? I breathe fire on both.", "Don't forget to save.", "That function looks lovely.", "I'll keep watch for typos.", "Refactor? Only if there's a snack after."],
   browser:  ["So many tabs. So many treasures.", "Found anything shiny?", "Ten tabs open? That's a hoard.", "Don't fall down the rabbit hole. Dragons only.", "Research time!", "Ooh, what are we looking up?", "Bookmark the good stuff!", "I'll be quiet while you read."],
   chat:     ["Say hi from me!", "Gossip! I love gossip.", "Reply before it goes cold.", "Somebody's popular today.", "Tell them I said hello.", "Type something nice!", "Ooh, new messages!"],
