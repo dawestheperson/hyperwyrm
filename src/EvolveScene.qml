@@ -141,7 +141,7 @@ PanelWindow {
         opacity: 0.05 + 0.05 * (scene.phase === "flicker" ? 2 : 1)
         scale: 1
         SequentialAnimation on scale {
-          running: scene.phase === "glow" || scene.phase === "flicker"
+          running: scene.visible && (scene.phase === "glow" || scene.phase === "flicker")   // never spin while hidden
           loops: Animation.Infinite
           NumberAnimation { to: 1.18; duration: 500 + index * 130; easing.type: Easing.InOutSine }
           NumberAnimation { to: 0.92; duration: 500 + index * 130; easing.type: Easing.InOutSine }
