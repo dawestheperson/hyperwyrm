@@ -14,8 +14,9 @@ import serp as S
 from kit import Canvas
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
-S.CFG[3] = dict(x0=51.0, L=47.0, y0=11.0, drop=9.0, amp=4.2, k=2.6, th0=8.6, th1=1.7, N=110,
+BASE_CFG = dict(x0=51.0, L=47.0, y0=11.0, drop=9.0, amp=4.2, k=2.6, th0=8.6, th1=1.7, N=110,
                 legs=[(0.16, 'd'), (0.23, 'm'), (0.52, 'd'), (0.60, 'm')], ground=None, mane=2, tail_flame=True)
+S.CFG[3] = dict(BASE_CFG)
 
 def spot(pts, s):                      # the body point nearest s (0 head .. 1 tail)
     return pts[max(0, min(len(pts) - 1, int(s * (len(pts) - 1))))]
@@ -50,17 +51,22 @@ def bed(cv, kind):
         for gx, gy, c in ((16, 29, 'f'), (24, 27, 'u'), (32, 26, 'f'), (40, 27, 'u'), (47, 29, 'f'), (28, 27, 'y'), (37, 26, 'y')): cv.px(gx, gy, c)
 
 # ---------------------------------------------------------------- celestial (Tianlong): sky dragon, halo, sleeps on a cloud
-def cel_adorn(cv, pts, ph, mode, head):
-    hx, hy = head                                               # a solid golden halo ring, glowing behind the head
-    cx, cy = hx + 1.0, hy - 0.5
-    for a in range(0, 360, 2):
-        for r in (8.6, 9.6):
-            x = cx + r * math.cos(math.radians(a)); y = cy + r * 0.95 * math.sin(math.radians(a))
-            cv.px(x, y, 'n')
-    for a in range(200, 300, 2):                                # a bright highlight along the upper left
-        cv.px(cx + 9.1 * math.cos(math.radians(a)), cy + 9.1 * 0.95 * math.sin(math.radians(a)), 'y')
+def cel_adorn(cv, pts, ph, mode, head): pass
 def cel_post(cv, pts, ph, mode, head):
     hx, hy = head
+    # an angel's halo: a flat golden oval floating above the head, bobbing a little
+    cx, cy = hx + 1.0, hy - 9.6 + math.sin(ph) * 0.5
+    rx, ry = 6.6, 2.3
+    for a in range(0, 360, 2):
+        ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
+        for d in (-1.6, -1.1, 1.1, 1.6):                          # dark edge, so it stands out from the antlers
+            cv.px(cx + (rx + d) * ca, cy + (ry + d * 0.7) * sa, 'o')
+    for a in range(0, 360, 2):
+        ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
+        for d in (-0.5, 0.0, 0.5):
+            cv.px(cx + (rx + d) * ca, cy + (ry + d * 0.6) * sa, 'n')
+    for a in range(200, 340, 3):                                # a shine along the top
+        cv.px(cx + rx * math.cos(math.radians(a)), cy + ry * math.sin(math.radians(a)), 'y')
     for i, (dx, dy) in enumerate(((-12, -9), (12, -8), (-6, 12), (4, -13))):
         if math.sin(ph * 2 + i * 1.7) > 0.1: cv.px(hx + dx, hy + dy, 'y')
     if mode in ('sleep', 'curl'): bed(cv, 'cloud')
@@ -140,6 +146,7 @@ FORMS = {'celestial': (cel_adorn, cel_post), 'spiritual': (spi_adorn, spi_post),
 
 def build(form):
     adorn, post = FORMS[form]
+    S.CFG[3] = dict(BASE_CFG, y0=BASE_CFG['y0'] + 2.5, drop=BASE_CFG['drop'] - 1.5, amp=BASE_CFG['amp'] - 0.6) if form == 'celestial' else dict(BASE_CFG)
     asleep = lambda mode: (lambda cv, pts, ph, m, head: adorn(cv, pts, ph, mode, head))
     asleep_post = lambda mode: (lambda cv, pts, ph, m, head: post(cv, pts, ph, mode, head))
     walk = [S.serp(3, i / 8, 'walk', adorn=adorn, post=post) for i in range(8)]
