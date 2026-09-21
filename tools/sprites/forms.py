@@ -50,12 +50,17 @@ def bed(cv, kind):
         for gx, gy, c in ((16, 29, 'f'), (24, 27, 'u'), (32, 26, 'f'), (40, 27, 'u'), (47, 29, 'f'), (28, 27, 'y'), (37, 26, 'y')): cv.px(gx, gy, c)
 
 # ---------------------------------------------------------------- celestial (Tianlong): sky dragon, halo, sleeps on a cloud
-def cel_adorn(cv, pts, ph, mode, head): pass
+def cel_adorn(cv, pts, ph, mode, head):
+    hx, hy = head                                               # a solid golden halo ring, glowing behind the head
+    cx, cy = hx + 1.0, hy - 0.5
+    for a in range(0, 360, 2):
+        for r in (8.6, 9.6):
+            x = cx + r * math.cos(math.radians(a)); y = cy + r * 0.95 * math.sin(math.radians(a))
+            cv.px(x, y, 'n')
+    for a in range(200, 300, 2):                                # a bright highlight along the upper left
+        cv.px(cx + 9.1 * math.cos(math.radians(a)), cy + 9.1 * 0.95 * math.sin(math.radians(a)), 'y')
 def cel_post(cv, pts, ph, mode, head):
     hx, hy = head
-    for a in range(0, 360, 12):                                 # a golden halo behind the head
-        px = hx + 1 + 9.5 * math.cos(math.radians(a)); py = hy - 1 + 8.5 * math.sin(math.radians(a))
-        if cv.get(int(px), int(py)) == '.' and math.sin(math.radians(a) * 2 + ph) > -0.5: cv.px(px, py, 'n')
     for i, (dx, dy) in enumerate(((-12, -9), (12, -8), (-6, 12), (4, -13))):
         if math.sin(ph * 2 + i * 1.7) > 0.1: cv.px(hx + dx, hy + dy, 'y')
     if mode in ('sleep', 'curl'): bed(cv, 'cloud')
