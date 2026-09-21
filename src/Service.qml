@@ -213,7 +213,7 @@ Item {
     gameState = ""
     energy = clamp(energy - 6)
     if (gameScore >= 4) {
-      joy = clamp(joy + 10); reward("game", 6); awardBadge("tag"); care.tag++
+      joy = clamp(joy + 10); reward("game", 6); awardBadge("tag"); if (roamEnabled) care.tag++
       say("You got me! Good game!")
     } else {
       joy = clamp(joy + 3)
@@ -421,7 +421,7 @@ Item {
     markDirty(false)
   }
   function endRest() {
-    care.rest++
+    if (roamEnabled) care.rest++
     restPhase = ""
     joy = clamp(joy + 5)
     reward("rest", 3)
@@ -442,7 +442,7 @@ Item {
     say(Phrases.pick(Phrases.PLAY_START))
   }
   function endPlay() {
-    care.play++
+    if (roamEnabled) care.play++
     if (!playing) return
     playing = false
     lastPlayMs = Date.now()
@@ -469,7 +469,7 @@ Item {
     var p = poops.filter(function(e) { return e.id !== id })
     if (p.length === poops.length) return
     poops = p
-    care.clean++
+    if (roamEnabled) care.clean++
     delete stressNoted[id]
     joy = clamp(joy + 2)
     reward("clean", 1.5)
@@ -482,7 +482,7 @@ Item {
     if (isEgg) return
     if (unhappy) { joy = clamp(joy + 0.5); say(Phrases.pick(Phrases.GRUMBLE)); return }
     chatCount++
-    care.pets++
+    if (roamEnabled) care.pets++
     joy = clamp(joy + 2)
     reward("pet", 1)
     say(Math.random() < 0.4 ? Phrases.pick(Phrases.PET)
@@ -646,7 +646,7 @@ Item {
     onTriggered: {
       root.tickCount++
       if (root.form === "zombie") { root.fullness = 60; root.energy = 80; root.joy = 60 }      // no needs at all
-      if (root.hatched) { var cc = root.care; cc.n++; cc.sum += (root.fullness + root.joy + root.energy) / 3; if (root.unhappy) cc.unhappy++ }
+      if (root.hatched && root.roamEnabled) { var cc = root.care;                 // only counted while it is out on the screen cc.n++; cc.sum += (root.fullness + root.joy + root.energy) / 3; if (root.unhappy) cc.unhappy++ }
       var restingNow = root.restPhase === "resting"
       root.fullness = root.clamp(root.fullness - (restingNow ? 0.1 : 0.25))
       // A little passive growth while it is well looked after. It stops just short of the
