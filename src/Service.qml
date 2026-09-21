@@ -69,7 +69,8 @@ Item {
   function chooseForm() {
     var c = care, n = Math.max(1, c.n)
     var avg = c.sum / n, unh = c.unhappy / n
-    if (c.n >= 10 && (avg < 40 || unh > 0.35)) return "zombie"
+    // a zombie takes real neglect: at least four hours out on the screen, and it must have been miserable for most of them
+    if (c.n >= 240 && (avg < 30 || unh > 0.5)) return "zombie"
     var score = {
       celestial: Math.max(0, avg - 55) * 1.5 + bond * 0.6 + c.pets * 0.4,
       spiritual: c.play * 4 + c.tag * 8,
@@ -646,7 +647,8 @@ Item {
     onTriggered: {
       root.tickCount++
       if (root.form === "zombie") { root.fullness = 60; root.energy = 80; root.joy = 60 }      // no needs at all
-      if (root.hatched && root.roamEnabled) { var cc = root.care;                 // only counted while it is out on the screen cc.n++; cc.sum += (root.fullness + root.joy + root.energy) / 3; if (root.unhappy) cc.unhappy++ }
+      // the care history only counts while the dragon is out on the screen
+      if (root.hatched && root.roamEnabled) { var cc = root.care; cc.n++; cc.sum += (root.fullness + root.joy + root.energy) / 3; if (root.unhappy) cc.unhappy++ }
       var restingNow = root.restPhase === "resting"
       root.fullness = root.clamp(root.fullness - (restingNow ? 0.1 : 0.25))
       // A little passive growth while it is well looked after. It stops just short of the

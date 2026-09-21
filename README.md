@@ -77,7 +77,7 @@ At 600 XP the Emperor Dragon becomes one of four traditional Chinese dragon type
 | **Spiritual Dragon** (Shenlong) | Lots of play and won games of tag | A translucent spirit. It opens wormholes: a grey swirling oval that it dives into, coming out at a random spot far across the screen. |
 | **Earth Dragon** (Dilong) | Steady feeding and keeping its home tidy | Bark, vines and leaves. To rest, it spins in on itself, shoots straight down and sleeps underground; a flower pops up where it went in and withers when it comes out somewhere else. |
 | **Treasure Dragon** (Fuzanglong) | Many badges and gifts, and plenty of rest | A body of gold coins studded with rubies and sapphires. It sleeps on a pile of gold. |
-| **Zombie Dragon** | Neglect: low happiness for too long while it is out | Rotting and stitched. It never eats or sleeps, and can only groan. |
+| **Zombie Dragon** | Real neglect: at least four hours out on your screen, unhappy for more than half of it (or very low care overall) | Rotting and stitched. It never eats or sleeps, and can only groan. |
 
 <p align="center">
   <img src="docs/art/colors.png" alt="The Emperor Dragon in all seven colours" width="640"><br>
