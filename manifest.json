@@ -4,7 +4,7 @@
   "name": "Hyperwyrm",
   "version": "0.2.2",
   "author": "dawestheperson",
-  "description": "A pixel-art eastern dragon pet driven by a tiny CfC neural network. It lives in your bar, roams your windows, grows through three forms and sulks when neglected.",
+  "description": "A pixel-art eastern dragon pet driven by a tiny CfC neural network. It lives in your bar, roams your windows, grows through four stages, learns your habits, and becomes one of five final dragons depending on how you raised it.",
   "kinds": [
     "service",
     "bar-widget"
